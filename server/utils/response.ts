@@ -38,7 +38,7 @@ export function sendSuccess<T>(res: Response, data: T, statusCode = 200): void {
     success: true,
     data,
   };
-  
+
   res.status(statusCode).json(response);
 }
 
@@ -64,7 +64,7 @@ export function sendError(
       ...(details && { details }),
     },
   };
-  
+
   res.status(statusCode).json(response);
 }
 
@@ -98,4 +98,57 @@ export function sendForbidden(res: Response, reason: string): void {
     `Policy denied: ${reason}`,
     403
   );
+}
+
+// ============================================================================
+// ALIAS EXPORTS (for convenience)
+// ============================================================================
+
+/**
+ * Alias for sendSuccess - returns response directly
+ */
+export function success<T>(res: Response, data: T, statusCode = 200): Response {
+  const response: SuccessResponse<T> = {
+    success: true,
+    data,
+  };
+
+  return res.status(statusCode).json(response);
+}
+
+/**
+ * Alias for sendError - returns response directly
+ */
+export function error(
+  res: Response,
+  statusCode: number,
+  code: string,
+  message: string,
+  details?: unknown
+): Response {
+  const response: ErrorResponse = {
+    success: false,
+    error: {
+      code,
+      message,
+      ...(details && { details }),
+    },
+  };
+
+  return res.status(statusCode).json(response);
+}
+
+/**
+ * Custom API Error class for consistent error handling
+ */
+export class ApiError extends Error {
+  constructor(
+    public statusCode: number,
+    public code: string,
+    message: string
+
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
 }
