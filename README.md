@@ -2,13 +2,13 @@
 
 ## Overview
 
-ARI is a privacy-first mobile AI assistant built with Expo (React Native) and an Express.js backend. The core architectural principle is a strict separation between intelligence and authority - the Companion Core (voice activation) can only REQUEST actions, while the Control App (master node) DECIDES whether to allow them.
+ARI is a privacy-first mobile AI assistant with InterceptX security simulation. Built with Expo (React Native) and Express.js backend. Core principle: strict separation between intelligence and authority.
 
 ## Security Model
 
-- **Zero-Trust**: The mobile app is never trusted; all sensitive decisions happen server-side
-- **Bounded Listening**: Audio capture only after explicit user action with max 5-second duration
-- **No Hardcoded Secrets**: All secrets are environment variables
+- **Zero-Trust**: Mobile app never trusted; all decisions server-side
+- **InterceptX**: Fingerprint-bound sessions with cryptographic audit logging
+- **Bounded Listening**: Audio capture only after explicit user action (max 5s)
 
 ## Project Structure
 
@@ -16,18 +16,23 @@ ARI is a privacy-first mobile AI assistant built with Expo (React Native) and an
 ├── app/                    # Frontend (Expo/React Native)
 │   ├── (control)/          # Control App - Master Node (tabs)
 │   └── activate.tsx        # Companion Core - Voice activation
-├── server/                 # Backend (Express.js)
-│   ├── routes/             # API routes
-│   ├── security/           # JWT, policy enforcement
-│   └── templates/          # HTML templates
-├── lib/                    # Shared libraries
-│   ├── api-client.ts       # API client
-│   ├── ari-context.tsx     # React Context for state
-│   └── query-client.ts     # TanStack Query setup
-├── shared/
-│   └── schema.ts           # Drizzle ORM database schema
-└── scripts/
-    └── build.js            # Static build script
+├── backend/                # Backend (Express.js)
+│   ├── api/                # API route handlers
+│   │   ├── sessionsApi.ts  # Session management
+│   │   ├── auditApi.ts     # Audit log access
+│   │   └── simulationApi.ts# Security simulation
+│   ├── security/           # Security modules
+│   │   ├── fingerprint.ts  # Device fingerprinting
+│   │   ├── crypto.ts       # Cryptographic operations
+│   │   └── audit.ts        # Tamper-evident logging
+│   ├── simulation/         # Attack simulation engine
+│   │   ├── hijackSimulation.ts
+│   │   └── replaySimulation.ts
+│   └── utils/              # Utilities
+├── components/             # Shared UI components
+├── lib/                    # Frontend libraries
+├── shared/                 # Shared types/schema
+└── scripts/                # Build scripts
 ```
 
 ## Getting Started
@@ -41,21 +46,18 @@ ARI is a privacy-first mobile AI assistant built with Expo (React Native) and an
 ### Installation
 
 ```bash
-# Install dependencies
 npm install
-
-# Copy environment template
 cp .env.example .env
-# Edit .env with your database URL and other settings
+# Edit .env with your settings
 ```
 
 ### Development
 
 ```bash
-# Start the backend server
-npm run server:dev
+# Start backend server
+npm run backend:dev
 
-# Start Expo development server (in another terminal)
+# Start Expo (another terminal)
 npm run expo:dev
 ```
 
@@ -63,45 +65,30 @@ npm run expo:dev
 
 | Script | Description |
 |--------|-------------|
-| `npm run server:dev` | Start backend in development mode |
+| `npm run backend:dev` | Start backend in development mode |
 | `npm run expo:dev` | Start Expo development server |
-| `npm run server:prod` | Start backend in production mode |
+| `npm run backend:prod` | Start backend in production mode |
 | `npm run db:push` | Push database schema changes |
-| `npm run lint` | Run ESLint |
+
+## API Endpoints
+
+| Endpoint | Description | Auth |
+|----------|-------------|------|
+| `GET /api/health` | Health check | Public |
+| `POST /api/sessions` | Create session | Fingerprint |
+| `POST /api/sessions/:id/validate` | Validate session | Fingerprint |
+| `GET /api/audit/logs` | Query audit logs | Admin |
+| `POST /api/simulation/hijack` | Run hijack simulation | Admin |
 
 ## Environment Variables
 
 | Variable | Description | Required |
 |----------|-------------|----------|
 | `DATABASE_URL` | PostgreSQL connection string | Yes |
-| `EXPO_PUBLIC_DOMAIN` | Public domain for API (e.g., `localhost:5000`) | Yes |
+| `EXPO_PUBLIC_DOMAIN` | Public API domain | Yes |
+| `SESSION_SECRET` | HMAC signing secret | Yes (prod) |
 | `PORT` | Server port (default: 5000) | No |
-| `CORS_ORIGINS` | Comma-separated allowed CORS origins | No |
-
-## API Endpoints
-
-- `GET /api/health` - Health check (public)
-- `POST /api/trigger` - Voice trigger endpoint (authenticated)
-
-## Architecture
-
-### Frontend (Expo/React Native)
-
-**Two-Module Design:**
-1. **Control App** (`app/(control)/`) - Acts as root of trust with tab navigation
-2. **Companion Core** (`app/activate.tsx`) - Voice activation with visual glow overlay
-
-**Stack:**
-- React Native with Expo SDK 54
-- expo-router for file-based navigation
-- TanStack Query for server state
-- react-native-reanimated for animations
-
-### Backend (Express.js)
-
-- Express 5.x with TypeScript
-- JWT validation and policy enforcement
-- Drizzle ORM with PostgreSQL
+| `CORS_ORIGINS` | Allowed CORS origins | No |
 
 ## License
 
