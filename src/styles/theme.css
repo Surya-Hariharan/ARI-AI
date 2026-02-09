@@ -1,0 +1,186 @@
+@custom-variant dark (&:is(.dark *));
+
+/* 
+  ARI Design System — Terminal Industries Inspired
+  STRICT COLOR PALETTE — NO EXCEPTIONS
+  White #FFFFFF   → clarity, content
+  Black #0B0B0B   → authority, background
+  Silver #BFC3C7  → structure, dividers, UI chrome
+  Gold #C9A44C    → trust, verified, premium markers
+  Neon Green #39FF14 → active/enabled ONLY (never decorative)
+*/
+
+:root {
+  /* Core Colors - Terminal Industries Palette */
+  --color-white: #FFFFFF;
+  --color-black: #0B0B0B;
+  --color-silver: #BFC3C7;
+  --color-gold: #C9A44C;
+  --color-neon: #39FF14;
+
+  /* Semantic Mappings */
+  --background: var(--color-white);
+  --foreground: var(--color-black);
+  --card: var(--color-white);
+  --card-foreground: var(--color-black);
+  --popover: var(--color-white);
+  --popover-foreground: var(--color-black);
+  --primary: var(--color-black);
+  --primary-foreground: var(--color-white);
+  --secondary: var(--color-silver);
+  --secondary-foreground: var(--color-black);
+  --muted: var(--color-silver);
+  --muted-foreground: var(--color-silver);
+  --accent: var(--color-neon);
+  --accent-foreground: var(--color-black);
+  --destructive: #d4183d;
+  --destructive-foreground: var(--color-white);
+  --border: var(--color-silver);
+  --input: transparent;
+  --input-background: var(--color-white);
+  --switch-background: var(--color-silver);
+  --ring: var(--color-silver);
+
+  /* Spacing Scale - 4 / 8 / 12 / 16 / 24 / 32 / 48 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  /* Grid */
+  --grid-gutter: 16px;
+  --grid-margin: 24px;
+
+  /* Typography */
+  --font-size: 16px;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+
+  /* Radius - very subtle */
+  --radius: 2px;
+}
+
+.dark {
+  --background: var(--color-black);
+  --foreground: var(--color-white);
+  --card: var(--color-black);
+  --card-foreground: var(--color-white);
+  --popover: var(--color-black);
+  --popover-foreground: var(--color-white);
+  --primary: var(--color-white);
+  --primary-foreground: var(--color-black);
+  --secondary: var(--color-silver);
+  --secondary-foreground: var(--color-white);
+  --muted: var(--color-silver);
+  --muted-foreground: var(--color-silver);
+  --border: var(--color-silver);
+  --input: var(--color-silver);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 1px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  /* Hide scrollbar completely */
+  html {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-behavior: smooth;
+  }
+
+  html::-webkit-scrollbar {
+    display: none;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    font-size: var(--font-size);
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: var(--font-weight-medium);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+    font-weight: var(--font-weight-medium);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+    font-weight: var(--font-weight-medium);
+    line-height: 1.3;
+  }
+
+  h4 {
+    font-size: 1rem;
+    font-weight: var(--font-weight-medium);
+    line-height: 1.4;
+  }
+
+  label {
+    font-size: 0.875rem;
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  button {
+    font-size: 0.875rem;
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  input {
+    font-size: 1rem;
+    font-weight: var(--font-weight-normal);
+    line-height: 1.5;
+  }
+
+  /* Monospace for logs and IDs */
+  .font-mono {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+}

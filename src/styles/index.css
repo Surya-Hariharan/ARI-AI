@@ -1,0 +1,55 @@
+@import './fonts.css';
+@import './tailwind.css';
+@import './theme.css';
+
+/* STRICT NATIVE APP SIMULATION */
+:root {
+    /* Prevent browser-level overscroll gestures */
+    overscroll-behavior: none;
+}
+
+body {
+    /* Disable text selection everywhere to feel like an app */
+    user-select: none;
+    -webkit-user-select: none;
+
+    /* Use default cursor instead of text I-beam */
+    cursor: default;
+
+    /* Disable pull-to-refresh on mobile browsers */
+    overscroll-behavior-y: none;
+
+    /* Prevent image dragging */
+    -webkit-user-drag: none;
+}
+
+/* Hide ALL scrollbars but keep functionality */
+* {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+*::-webkit-scrollbar {
+    display: none;
+}
+
+/* Prevent blue highlight on tap */
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Allow text selection ONLY on specific inputs if needed */
+input,
+textarea {
+    user-select: text;
+    -webkit-user-select: text;
+    cursor: text;
+}
+
+/* Force images to not be draggable */
+img {
+    -webkit-user-drag: none;
+    pointer-events: none;
+}
