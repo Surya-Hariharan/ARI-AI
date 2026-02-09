@@ -1,0 +1,194 @@
+Create a full-stack project skeleton for a privacy-first mobile AI assistant called ARI.
+
+This project is an early-stage scaffold whose purpose is to validate architecture, security boundaries, and trigger flow, not to implement full functionality.
+
+The project consists of:
+
+An Android frontend (Kotlin, Jetpack Compose)
+
+A backend API that simulates Supabase Edge Functions
+
+The frontend and backend must be logically separated, even if shown in the same workspace.
+
+OVERALL DESIGN PRINCIPLES
+
+ARI is not always listening
+
+Audio capture happens only after explicit user action
+
+The mobile app is never trusted
+
+All sensitive decisions happen server-side
+
+No secrets are hardcoded anywhere
+
+This design must reflect a security-first AI trigger system, not a general assistant app.
+
+BACKEND REQUIREMENTS (Simulating Supabase Edge Functions)
+
+Tech
+
+Language: TypeScript
+
+Runtime style: Deno-compatible (no Node-only APIs)
+
+Stateless REST API
+
+Responsibilities
+
+Accept HTTPS REST requests from the Android app
+
+Expect a JWT in Authorization: Bearer <token>
+
+Perform mock JWT validation
+
+Enforce a policy gate before allowing any action
+
+Endpoints
+
+GET /health
+
+Public
+
+Returns:
+
+{ "status": "ok", "service": "ARI-backend" }
+
+
+POST /trigger
+
+Requires Authorization header
+
+Accepts:
+
+{
+  "event": "voice_trigger",
+  "device_id": "string",
+  "timestamp": "number"
+}
+
+
+Performs:
+
+JWT presence check
+
+Policy check (allow / deny)
+
+Returns:
+
+{
+  "allowed": true,
+  "reason": "policy_passed"
+}
+
+
+Backend Structure
+
+backend/
+  src/
+    routes/
+      health.ts
+      trigger.ts
+    security/
+      jwt.ts
+      policy.ts
+    utils/
+      response.ts
+    server.ts
+
+
+JWT logic must be isolated
+
+Policy logic must be isolated
+
+No persistent state
+
+Heavy comments explaining intent, not syntax
+
+FRONTEND REQUIREMENTS (Android App)
+
+Tech
+
+Language: Kotlin
+
+UI: Jetpack Compose
+
+Architecture: MVVM
+
+Min SDK: 26+
+
+Responsibilities
+
+Explicitly request microphone permission
+
+Provide a manual trigger button (“Activate ARI”)
+
+Capture audio only after trigger
+
+Limit audio capture to a fixed short window (e.g., 5 seconds)
+
+Never save audio to disk
+
+Simulate a REST call to the backend /trigger endpoint
+
+UI
+
+Title: “ARI”
+
+Status indicator: Idle / Listening / Processing
+
+Button: “Activate ARI”
+
+Frontend Structure
+
+android/
+  ui/
+    MainScreen.kt
+  viewmodel/
+    AriViewModel.kt
+  audio/
+    AudioRecorder.kt
+  network/
+    ApiClient.kt
+  MainActivity.kt
+
+
+Security Constraints
+
+No API keys hardcoded
+
+No background microphone usage
+
+No continuous listening
+
+JWT stored only in memory or placeholder (for now)
+
+CRITICAL CONSTRAINTS
+
+Do NOT merge frontend and backend logic
+
+Do NOT auto-start microphone
+
+Do NOT assume always-on listening
+
+Do NOT implement wake-word ML
+
+Do NOT store audio
+
+OUTPUT REQUIREMENTS
+
+Generate the full project folder structure
+
+Include both frontend and backend skeletons
+
+Add comments mapping the design to:
+
+explicit user intent
+
+bounded listening
+
+server-side policy enforcement
+
+Keep code minimal, readable, and disposable
+
+This project represents a secure AI activation pipeline, not a feature-complete assistant.
