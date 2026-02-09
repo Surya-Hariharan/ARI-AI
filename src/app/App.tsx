@@ -13,11 +13,22 @@ import { Mic, X } from 'lucide-react';
 
 function App() {
   const [isListening, setIsListening] = React.useState(false);
+  const timerRef = React.useRef<any>(null);
 
   const toggleListening = () => {
-    setIsListening(!isListening);
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+
     if (!isListening) {
-      setTimeout(() => setIsListening(false), 5000);
+      setIsListening(true);
+      timerRef.current = setTimeout(() => {
+        setIsListening(false);
+        timerRef.current = null;
+      }, 5000);
+    } else {
+      setIsListening(false);
     }
   };
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Activity, Shield, Eye, Cpu, Network, Clock, Zap, Lock, Unlock } from 'lucide-react';
 import { VoiceCommands } from '../components/VoiceCommands';
+import { GridBackground } from '../components/GridBackground';
 
 interface Feature {
     id: string;
@@ -56,12 +57,7 @@ export function ControlDashboard() {
         <main className="min-h-screen font-[Inter] bg-[#0B0B0B] text-white selection:bg-[#39FF14] selection:text-[#0B0B0B]">
 
             {/* Background Grid Effect */}
-            <div className="fixed inset-0 pointer-events-none opacity-20"
-                style={{
-                    backgroundImage: `linear-gradient(to right, #1a1a1a 1px, transparent 1px), linear-gradient(to bottom, #1a1a1a 1px, transparent 1px)`,
-                    backgroundSize: '24px 24px'
-                }}
-            />
+            <GridBackground gridSize={24} opacity={0.05} />
 
             <div className="relative pt-24 pb-32 px-6 max-w-lg mx-auto flex flex-col gap-6">
 

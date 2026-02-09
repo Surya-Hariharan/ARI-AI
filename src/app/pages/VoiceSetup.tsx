@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Mic, Check, ArrowRight, RotateCcw, Volume2, Shield, Cpu } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { GridBackground } from '../components/GridBackground';
 
 const PHRASES = [
     "Hey Ari",
@@ -31,7 +32,7 @@ export function VoiceSetup() {
 
     // Simulated audio visualizer
     useEffect(() => {
-        let interval: NodeJS.Timeout;
+        let interval: any;
         if (step === 'calibration' || (step === 'training' && isRecording)) {
             interval = setInterval(() => {
                 setVolumeLevel(Math.random() * 100);
@@ -100,17 +101,8 @@ export function VoiceSetup() {
 
     return (
         <div className="min-h-screen bg-[#0B0B0B] text-white flex flex-col items-center justify-center p-6 relative overflow-hidden">
-            {/* Background Grid */}
-            <div
-                className="fixed inset-0 pointer-events-none opacity-20"
-                style={{
-                    backgroundImage: `
-                linear-gradient(to right, rgba(191, 195, 199, 0.1) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(191, 195, 199, 0.1) 1px, transparent 1px)
-            `,
-                    backgroundSize: '24px 24px'
-                }}
-            />
+            {/* Background Grid Effect */}
+            <GridBackground gridSize={24} opacity={0.05} />
 
             {/* Top Bar */}
             <div className="absolute top-6 left-6 right-6 flex justify-between items-center z-20">
@@ -127,11 +119,11 @@ export function VoiceSetup() {
                             <div
                                 key={i}
                                 className={`w-2 h-2 rounded-full ${(step === 'calibration' && i === 0) ||
-                                        (step === 'training' && i <= 1) ||
-                                        (step === 'processing' && i <= 2) ||
-                                        (step === 'success')
-                                        ? 'bg-[#39FF14]'
-                                        : 'bg-[#333333]'
+                                    (step === 'training' && i <= 1) ||
+                                    (step === 'processing' && i <= 2) ||
+                                    (step === 'success')
+                                    ? 'bg-[#39FF14]'
+                                    : 'bg-[#333333]'
                                     }`}
                             />
                         ))}
@@ -232,7 +224,7 @@ export function VoiceSetup() {
                                         <div
                                             key={i}
                                             className={`w-8 h-1 rounded-full transition-colors ${i < currentSampleIndex ? 'bg-[#39FF14]' :
-                                                    (i === currentSampleIndex && isRecording) ? 'bg-[#39FF14] animate-pulse' : 'bg-[#333333]'
+                                                (i === currentSampleIndex && isRecording) ? 'bg-[#39FF14] animate-pulse' : 'bg-[#333333]'
                                                 }`}
                                         />
                                     ))}
@@ -257,8 +249,8 @@ export function VoiceSetup() {
                                         onClick={handleStartRecording}
                                         disabled={isRecording}
                                         className={`w-20 h-20 rounded-full flex items-center justify-center transition-all ${isRecording
-                                                ? 'bg-[#39FF14] text-black scale-110 shadow-[0_0_20px_rgba(57,255,20,0.4)]'
-                                                : 'bg-[#333333] text-white hover:bg-[#444444]'
+                                            ? 'bg-[#39FF14] text-black scale-110 shadow-[0_0_20px_rgba(57,255,20,0.4)]'
+                                            : 'bg-[#333333] text-white hover:bg-[#444444]'
                                             }`}
                                     >
                                         <Mic className="w-8 h-8" />

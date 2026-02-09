@@ -2,50 +2,14 @@ import React, { useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { GridBackground } from './GridBackground';
 
 export function Hero() {
   // Animation handled via Framer Motion in render
 
   return (
     <section className="relative min-h-screen w-full bg-[#0B0B0B] overflow-hidden flex flex-col justify-start pt-32 px-6">
-      {/* Base Grid (Silver) - Fixed Background */}
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, rgba(191, 195, 199, 0.03) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(191, 195, 199, 0.03) 1px, transparent 1px)
-          `,
-          backgroundSize: '48px 48px',
-          maskImage: 'linear-gradient(to bottom, black 80%, transparent)',
-          zIndex: 0
-        }}
-      />
-
-      {/* Vertical Neon Wave Grid (Overlay) - Smoother & Pure Green */}
-      <motion.div
-        className="fixed inset-0 pointer-events-none mix-blend-screen"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, rgba(57, 255, 20, 0.2) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(57, 255, 20, 0.2) 1px, transparent 1px)
-          `,
-          backgroundSize: '48px 48px',
-          zIndex: 0
-        }}
-        animate={{
-          maskImage: [
-            'linear-gradient(to bottom, transparent -100%, black -50%, transparent 0%)',
-            'linear-gradient(to bottom, transparent 100%, black 150%, transparent 200%)'
-          ]
-        }}
-        transition={{
-          duration: 6,
-          repeat: Infinity,
-          ease: "linear",
-          repeatDelay: 0
-        }}
-      />
+      <GridBackground />
 
       <div className="relative z-10 w-full max-w-3xl mx-auto flex flex-col items-start gap-8">
         {/* Status Badge */}
