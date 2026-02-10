@@ -1,16 +1,23 @@
-from sqlalchemy import Column, Integer, String, DateTime, JSON
-from sqlalchemy.sql import func
-from app.core.database import Base
+from pydantic import BaseModel, Field, validator
+from typing import Optional, Dict, Any
+import time
 
-class AuditLog(Base):
-    __tablename__ = "audit_logs"
+class DeviceRegistration(BaseModel):
+    device_id: str = Field(..., description="Unique hardware ID of the Android device")
+    public_key: str = Field(..., description="PEM encoded public key")
+    model: str = Field(..., description="Device model name (e.g. Pixel 8)")
+    android_version: str = Field(..., description="Android SDK version")
 
-    id = Column(Integer, primary_key=True, index=True)
-    request_id = Column(String, index=True, nullable=False)
-    timestamp = Column(DateTime(timezone=True), server_default=func.now())
-    user_id = Column(String, index=True)
-    device_id = Column(String)
-    intent = Column(String)
-    decision = Column(String)
-    actions = Column(JSON) # Stores list of actions
-    meta = Column(JSON, default={})
+class SignedRequest(BaseModel):
+    payload: Dict[str, Any] = Field(..., description="The actual request data")
+    signature: str = Field(..., description="Hex-encoded signature of the payload")
+    public_key: str = Field(..., description="Public key matching the signature")
+    timestamp: int = Field(..., description="Unix timestamp of the request")
+
+    @validator('timestamp')
+    def validate_timestamp(cls, v):
+        # Replay protection: Request must be within last 60 seconds
+        current_time = int(time.time())
+        if abs(current_time - v) > 60:
+            raise ValueError("Request timestamp too old or in future")
+        return v
