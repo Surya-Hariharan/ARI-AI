@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Power, Cpu, Sliders, Fingerprint, Mic, X } from 'lucide-react';
+import { Power, Cpu, Sliders, Fingerprint, Mic, X, Loader2, Play } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useSystem } from '../context/SystemContext';
 
 interface NavigationProps {
+  // Props are now optional/deprecated as we use context, but kept for compatibility during refactor if needed
   isListening?: boolean;
   onToggleMic?: () => void;
 }
@@ -15,12 +17,26 @@ const navItems = [
   { name: 'Account', path: '/account', icon: Fingerprint },
 ];
 
-export function Navigation({ isListening, onToggleMic }: NavigationProps) {
+export function Navigation({ onToggleMic }: NavigationProps) {
   const location = useLocation();
+  const { state, simulateVoiceCommand } = useSystem();
 
-  // Split items to insert Mic in the middle
-  const leftItems = navItems.slice(0, 2);
-  const rightItems = navItems.slice(2);
+  // Helper to determine visual state
+  const isListening = state === 'LISTENING';
+  const isProcessing = state === 'PROCESSING';
+  const isError = state === 'ERROR';
+  const isAction = state === 'ACTION_EXECUTED';
+
+  // For the simulation, we'll hook the button to the simulator if no prop provided
+  const handleMicClick = () => {
+    if (onToggleMic) {
+      onToggleMic(); // Keep legacy behavior if passed
+      // Also trigger simulation for now
+      simulateVoiceCommand("turn on the flashlight");
+    } else {
+      simulateVoiceCommand("turn on the flashlight");
+    }
+  };
 
   const renderNavItem = (item: typeof navItems[0]) => {
     const isActive = location.pathname === item.path;
@@ -58,26 +74,64 @@ export function Navigation({ isListening, onToggleMic }: NavigationProps) {
           {/* Assistant Trigger - Central */}
           <div className="flex-1 flex justify-center">
             <button
-              onClick={onToggleMic}
-              className={`flex-shrink-0 relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500 active:scale-95 group
-                ${isListening ? 'bg-black shadow-[0_0_30px_rgba(57,255,20,0.4)] scale-110' : 'bg-black border border-[#333333] hover:border-[#39FF14]/50'}`}
+              onClick={handleMicClick}
+              className={`flex-shrink-0 relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500 active:scale-95 group overflow-hidden
+                ${isListening || isProcessing ? 'bg-black shadow-[0_0_30px_rgba(57,255,20,0.4)] scale-110' :
+                  isError ? 'bg-black border-red-500 shadow-[0_0_30px_rgba(255,0,0,0.4)]' :
+                    'bg-black border border-[#333333] hover:border-[#39FF14]/50'}`}
             >
-              {isListening ? (
-                <X className="w-5 h-5 text-[#39FF14] z-10" />
-              ) : (
-                <div className="relative w-5 h-5 flex items-center justify-center">
-                  <div className="absolute inset-0 rounded-full bg-white opacity-20 group-hover:opacity-40 transition-opacity" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-white group-hover:bg-[#39FF14] transition-colors shadow-[0_0_10px_rgba(255,255,255,0.5)]" />
+              <AnimatePresence mode="wait">
+                {isListening ? (
                   <motion.div
-                    animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-                    transition={{ repeat: Infinity, duration: 3 }}
-                    className="absolute inset-[-4px] rounded-full border border-white/20"
-                  />
-                </div>
-              )}
+                    key="listening"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                  >
+                    <X className="w-5 h-5 text-[#39FF14] z-10" />
+                  </motion.div>
+                ) : isProcessing ? (
+                  <motion.div
+                    key="processing"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    className="z-10"
+                  >
+                    <Loader2 className="w-5 h-5 text-[#39FF14] animate-spin" />
+                  </motion.div>
+                ) : isAction ? (
+                  <motion.div
+                    key="action"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    className="z-10"
+                  >
+                    <Play className="w-5 h-5 text-[#39FF14] fill-[#39FF14]" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="idle"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    className="relative w-5 h-5 flex items-center justify-center"
+                  >
+                    <div className="absolute inset-0 rounded-full bg-white opacity-20 group-hover:opacity-40 transition-opacity" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-white group-hover:bg-[#39FF14] transition-colors shadow-[0_0_10px_rgba(255,255,255,0.5)]" />
+                    <motion.div
+                      animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+                      transition={{ repeat: Infinity, duration: 3 }}
+                      className="absolute inset-[-4px] rounded-full border border-white/20"
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
+              {/* Status Glows */}
               <AnimatePresence>
-                {isListening && (
+                {(isListening || isProcessing) && (
                   <motion.div
                     key="mic-glow-outer"
                     initial={{ scale: 1, opacity: 0.5 }}
@@ -87,10 +141,19 @@ export function Navigation({ isListening, onToggleMic }: NavigationProps) {
                     className="absolute inset-0 bg-[#39FF14] rounded-full -z-10"
                   />
                 )}
+                {isError && (
+                  <motion.div
+                    key="error-glow"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0, 0.5, 0] }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 bg-red-500/50 rounded-full -z-10"
+                  />
+                )}
               </AnimatePresence>
 
               <AnimatePresence>
-                {isListening && (
+                {(isListening || isProcessing) && (
                   <motion.div
                     key="mic-glow-inner"
                     animate={{ rotate: 360 }}

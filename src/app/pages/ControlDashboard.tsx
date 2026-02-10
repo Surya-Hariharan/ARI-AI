@@ -1,32 +1,12 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Activity, Shield, Eye, Cpu, Network, Clock, Zap, Lock, Unlock } from 'lucide-react';
+import { Activity, Shield, Eye, Cpu, Network, Clock, Zap, Filter, PlayCircle } from 'lucide-react';
 import { VoiceCommands } from '../components/VoiceCommands';
 import { GridBackground } from '../components/GridBackground';
+import { useSystem } from '../context/SystemContext';
+import { Link } from 'react-router-dom';
 
-interface Feature {
-    id: string;
-    name: string;
-    description: string;
-    enabled: boolean;
-    icon: React.ComponentType<{ className?: string, size?: number, fill?: string }>;
-}
-
-const initialFeatures: Feature[] = [
-    { id: 'data-read', name: 'Data Access', description: 'Read production data sources', enabled: true, icon: Eye },
-    { id: 'processing', name: 'Processing', description: 'Execute compute workloads', enabled: true, icon: Cpu },
-    { id: 'network', name: 'Network', description: 'External API connections', enabled: false, icon: Network },
-    { id: 'security', name: 'Security', description: 'Access control management', enabled: true, icon: Shield },
-];
-
-const recentActivity = [
-    { time: '2m ago', action: 'Data Access enabled', user: 'admin@company.com', status: 'success' },
-    { time: '15m ago', action: 'Processing task completed', user: 'system', status: 'success' },
-    { time: '1h ago', action: 'Network access disabled', user: 'admin@company.com', status: 'warning' },
-    { time: '2h ago', action: 'Security audit initiated', user: 'system', status: 'info' },
-];
-
-// Custom Modern Toggle Component
+// Modern Toggle Component
 const ModernToggle = ({ checked, onChange, disabled }: { checked: boolean; onChange: () => void; disabled?: boolean }) => (
     <button
         onClick={onChange}
@@ -44,14 +24,26 @@ const ModernToggle = ({ checked, onChange, disabled }: { checked: boolean; onCha
 );
 
 export function ControlDashboard() {
-    const [features, setFeatures] = useState(initialFeatures);
+    const { auditLog, state } = useSystem();
     const [globalEnabled, setGlobalEnabled] = useState(true);
+    const [filter, setFilter] = useState<'ALL' | 'VOICE' | 'SYSTEM' | 'SECURITY'>('ALL');
+
+    const [features, setFeatures] = useState([
+        { id: 'data-read', name: 'Data Access', description: 'Read production data sources', enabled: true, icon: Eye },
+        { id: 'processing', name: 'Processing', description: 'Execute compute workloads', enabled: true, icon: Cpu },
+        { id: 'network', name: 'Network', description: 'External API connections', enabled: false, icon: Network },
+        { id: 'security', name: 'Security', description: 'Access control management', enabled: true, icon: Shield },
+    ]);
 
     const toggleFeature = (id: string) => {
         setFeatures(features.map(f =>
             f.id === id ? { ...f, enabled: !f.enabled } : f
         ));
     };
+
+    const filteredLogs = auditLog.filter(log =>
+        filter === 'ALL' ? true : log.category === filter
+    );
 
     return (
         <main className="min-h-screen font-[Inter] bg-[#0B0B0B] text-white selection:bg-[#39FF14] selection:text-[#0B0B0B]">
@@ -73,8 +65,8 @@ export function ControlDashboard() {
                     </div>
                     <div className="flex items-center gap-3">
                         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#39FF14]/10 border border-[#39FF14]/30">
-                            <div className="w-1.5 h-1.5 rounded-full bg-[#39FF14] animate-pulse" />
-                            <span className="text-[10px] font-mono text-[#39FF14] uppercase tracking-wider">High Auth</span>
+                            <div className={`w-1.5 h-1.5 rounded-full bg-[#39FF14] ${state === 'PROCESSING' ? 'animate-ping' : 'animate-pulse'}`} />
+                            <span className="text-[10px] font-mono text-[#39FF14] uppercase tracking-wider">{state}</span>
                         </div>
                     </div>
                 </motion.div>
@@ -164,23 +156,51 @@ export function ControlDashboard() {
                     transition={{ delay: 0.5 }}
                     className="mt-4 p-5 rounded-2xl border backdrop-blur-md bg-black/40 border-white/10"
                 >
-                    <div className="flex items-center gap-2 mb-4">
-                        <Clock size={14} className="text-[#39FF14]" />
-                        <h3 className="text-xs font-bold uppercase tracking-wider text-white">Audit Log</h3>
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <Clock size={14} className="text-[#39FF14]" />
+                            <h3 className="text-xs font-bold uppercase tracking-wider text-white">Audit Log</h3>
+                        </div>
+                        <div className="flex gap-2">
+                            {(['ALL', 'VOICE', 'SYSTEM'] as const).map(f => (
+                                <button
+                                    key={f}
+                                    onClick={() => setFilter(f)}
+                                    className={`text-[9px] px-2 py-1 rounded border ${filter === f ? 'bg-[#39FF14]/20 border-[#39FF14] text-[#39FF14]' : 'border-transparent text-[#666] hover:text-white'
+                                        }`}
+                                >
+                                    {f}
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                    <div className="space-y-4">
-                        {recentActivity.map((log, i) => (
-                            <div key={i} className="relative pl-4 border-l border-white/10">
-                                <div className={`absolute left-[-2.5px] top-1.5 w-[5px] h-[5px] rounded-full ${log.status === 'success' ? 'bg-[#39FF14]' :
-                                    log.status === 'warning' ? 'bg-[#C9A44C]' : 'bg-[#BFC3C7]'
-                                    }`} />
-                                <div className="flex justify-between items-start">
-                                    <p className="text-xs leading-tight text-[#BFC3C7]">{log.action}</p>
-                                    <span className="text-[10px] font-mono whitespace-nowrap ml-2 text-[#BFC3C7]/40">{log.time}</span>
+
+                    <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                        {filteredLogs.length === 0 ? (
+                            <div className="text-center py-8 text-[#444] text-xs">No activity recorded</div>
+                        ) : (
+                            filteredLogs.slice(0, 10).map((log) => (
+                                <div key={log.id} className="relative pl-4 border-l border-white/10 group">
+                                    <div className={`absolute left-[-2.5px] top-1.5 w-[5px] h-[5px] rounded-full ${log.severity === 'INFO' ? 'bg-[#39FF14]' :
+                                            log.severity === 'WARNING' ? 'bg-[#C9A44C]' :
+                                                log.severity === 'ERROR' ? 'bg-red-500' : 'bg-[#BFC3C7]'
+                                        }`} />
+                                    <div className="flex justify-between items-start">
+                                        <p className="text-xs leading-tight text-[#BFC3C7] group-hover:text-white transition-colors">{log.action}</p>
+                                        <span className="text-[10px] font-mono whitespace-nowrap ml-2 text-[#BFC3C7]/40">
+                                            {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                                        </span>
+                                    </div>
+                                    <p className="text-[10px] font-mono mt-1 text-[#BFC3C7]/30 flex justify-between">
+                                        <span>{log.user}</span>
+                                        {/* Fake Replay Button */}
+                                        <button className="opacity-0 group-hover:opacity-100 flex items-center gap-1 text-[#39FF14] hover:underline">
+                                            <PlayCircle size={10} /> REPLAY
+                                        </button>
+                                    </p>
                                 </div>
-                                <p className="text-[10px] font-mono mt-1 text-[#BFC3C7]/30">{log.user}</p>
-                            </div>
-                        ))}
+                            ))
+                        )}
                     </div>
                 </motion.div>
 
