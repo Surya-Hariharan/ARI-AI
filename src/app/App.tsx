@@ -26,7 +26,7 @@ function App() {
       timerRef.current = setTimeout(() => {
         setIsListening(false);
         timerRef.current = null;
-      }, 5000);
+      }, 3000);
     } else {
       setIsListening(false);
     }
