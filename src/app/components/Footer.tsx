@@ -47,8 +47,11 @@ export function Footer() {
           {/* Links Grid - Balanced Spacing */}
           <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-10 md:justify-items-center">
             {/* Platform */}
-            <div className="flex flex-col gap-5">
-              <h4 className="text-[10px] font-bold text-white uppercase tracking-[0.2em] opacity-80">Platform</h4>
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <h4 className="text-[10px] font-bold text-white uppercase tracking-[0.2em] opacity-80">Platform</h4>
+                <div className="h-[1px] w-6 bg-[#C9A44C]/40" />
+              </div>
               <ul className="flex flex-col gap-4">
                 {footerLinks.platform.map((link, i) => (
                   <li key={i}>
@@ -65,8 +68,11 @@ export function Footer() {
             </div>
 
             {/* Company */}
-            <div className="flex flex-col gap-5">
-              <h4 className="text-[10px] font-bold text-white uppercase tracking-[0.2em] opacity-80">Company</h4>
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <h4 className="text-[10px] font-bold text-white uppercase tracking-[0.2em] opacity-80">Company</h4>
+                <div className="h-[1px] w-6 bg-[#C9A44C]/40" />
+              </div>
               <ul className="flex flex-col gap-4">
                 {footerLinks.company.map((link, i) => (
                   <li key={i}>
@@ -79,8 +85,11 @@ export function Footer() {
             </div>
 
             {/* Legal */}
-            <div className="flex flex-col gap-5">
-              <h4 className="text-[10px] font-bold text-white uppercase tracking-[0.2em] opacity-80">Legal</h4>
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <h4 className="text-[10px] font-bold text-white uppercase tracking-[0.2em] opacity-80">Legal</h4>
+                <div className="h-[1px] w-6 bg-[#C9A44C]/40" />
+              </div>
               <ul className="flex flex-col gap-4">
                 {footerLinks.legal.map((link, i) => (
                   <li key={i}>
