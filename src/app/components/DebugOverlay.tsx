@@ -36,9 +36,9 @@ export function DebugOverlay() {
                     <div className="flex items-center gap-3">
                         <Terminal size={16} className="text-[#39FF14]" />
                         <span className="font-bold text-[#EAEAEA]">ARI DEBUG KERNEL</span>
-                        <span className="px-2 py-0.5 rounded bg-[#333] text-[#888]">{state}</span>
+                        <span className="px-3 py-1 rounded-full bg-[#333] text-[#888]">{state}</span>
                         {backgroundState === 'ACTIVE' && (
-                            <span className="px-2 py-0.5 rounded bg-[#39FF14]/20 text-[#39FF14]">BG:ACTIVE</span>
+                            <span className="px-3 py-1 rounded-full bg-[#39FF14]/20 text-[#39FF14]">BG:ACTIVE</span>
                         )}
                     </div>
                     <button onClick={() => setIsOpen(false)} className="text-[#666] hover:text-white">
@@ -97,8 +97,8 @@ export function DebugOverlay() {
                                         </button>
                                     </div>
                                     <div className="mt-2 flex gap-2">
-                                        <button onClick={() => simulateVoiceCommand("turn on the flashlight")} className="text-[10px] bg-[#333] px-2 py-1 rounded">Quick: Flashlight</button>
-                                        <button onClick={() => simulateVoiceCommand("unknown command test")} className="text-[10px] bg-[#333] px-2 py-1 rounded">Quick: Error</button>
+                                        <button onClick={() => simulateVoiceCommand("turn on the flashlight")} className="text-[10px] bg-[#333] px-3 py-1.5 rounded-full hover:bg-[#444] transition-colors">Quick: Flashlight</button>
+                                        <button onClick={() => simulateVoiceCommand("unknown command test")} className="text-[10px] bg-[#333] px-3 py-1.5 rounded-full hover:bg-[#444] transition-colors">Quick: Error</button>
                                     </div>
                                 </div>
                             </div>
@@ -168,8 +168,8 @@ export function DebugOverlay() {
 
                                     <div className="flex items-center gap-4">
                                         <div className={`w-12 h-12 rounded-full border flex items-center justify-center ${lastIntent.intent === 'UNKNOWN_INTENT'
-                                                ? 'bg-red-900/20 border-red-500/50 text-red-500'
-                                                : 'bg-green-900/20 border-green-500/50 text-green-500'
+                                            ? 'bg-red-900/20 border-red-500/50 text-red-500'
+                                            : 'bg-green-900/20 border-green-500/50 text-green-500'
                                             }`}>
                                             OUT
                                         </div>
@@ -194,7 +194,7 @@ export function DebugOverlay() {
                                         {new Date(log.timestamp).toLocaleTimeString().split(' ')[0]}
                                     </div>
                                     <div className={`w-20 font-bold shrink-0 ${log.severity === 'ERROR' ? 'text-red-500' :
-                                            log.severity === 'WARNING' ? 'text-yellow-500' : 'text-[#39FF14]'
+                                        log.severity === 'WARNING' ? 'text-yellow-500' : 'text-[#39FF14]'
                                         }`}>
                                         {log.severity}
                                     </div>

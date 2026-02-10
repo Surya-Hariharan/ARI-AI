@@ -76,7 +76,7 @@ export function ControlDashboard() {
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.1 }}
-                    className={`relative overflow-hidden p-6 rounded-2xl border transition-all duration-500 ${globalEnabled
+                    className={`relative overflow-hidden p-6 rounded-[32px] border transition-all duration-500 ${globalEnabled
                         ? 'bg-[#39FF14]/5 border-[#39FF14]/30 shadow-[0_0_30px_rgba(57,255,20,0.1)]'
                         : 'bg-[#1A1A1A] border-[#39FF14]/0 shadow-none'
                         }`}
@@ -87,7 +87,7 @@ export function ControlDashboard() {
 
                     <div className="relative z-10 flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                            <div className={`p-3 rounded-xl ${globalEnabled ? 'bg-[#39FF14] text-black' : 'bg-white/10 text-white'}`}>
+                            <div className={`p-3 rounded-full ${globalEnabled ? 'bg-[#39FF14] text-black' : 'bg-white/10 text-white'}`}>
                                 <Zap size={24} fill={globalEnabled ? "currentColor" : "none"} />
                             </div>
                             <div>
@@ -112,16 +112,19 @@ export function ControlDashboard() {
                     {features.map((feature, i) => (
                         <motion.div
                             key={feature.id}
+                            layout
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.2 + (i * 0.05) }}
-                            className={`group flex items-center justify-between p-4 rounded-xl border backdrop-blur-sm transition-all duration-300 ${feature.enabled && globalEnabled
-                                ? 'bg-black/40 border-[#39FF14]/30 hover:border-[#39FF14]/50'
-                                : 'bg-black/20 border-white/5 hover:border-white/10 opacity-75'
+                            whileHover={{ scale: 1.02, backgroundColor: "rgba(57, 255, 20, 0.05)" }}
+                            whileTap={{ scale: 0.98 }}
+                            transition={{ delay: 0.2 + (i * 0.05), layout: { duration: 0.2 } }}
+                            className={`group flex items-center justify-between p-4 rounded-[24px] border backdrop-blur-sm transition-colors duration-300 ${feature.enabled && globalEnabled
+                                ? 'bg-black/40 border-[#39FF14]/30'
+                                : 'bg-black/20 border-white/5 opacity-75'
                                 }`}
                         >
                             <div className="flex items-center gap-4">
-                                <div className={`p-2 rounded-lg transition-colors ${feature.enabled && globalEnabled
+                                <div className={`p-2 rounded-full transition-colors ${feature.enabled && globalEnabled
                                     ? 'text-[#39FF14] bg-[#39FF14]/10'
                                     : 'text-[#BFC3C7] bg-white/5'
                                     }`}>
@@ -154,7 +157,7 @@ export function ControlDashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 }}
-                    className="mt-4 p-5 rounded-2xl border backdrop-blur-md bg-black/40 border-white/10"
+                    className="mt-4 p-5 rounded-[32px] border backdrop-blur-md bg-black/40 border-white/10"
                 >
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
@@ -180,10 +183,16 @@ export function ControlDashboard() {
                             <div className="text-center py-8 text-[#444] text-xs">No activity recorded</div>
                         ) : (
                             filteredLogs.slice(0, 10).map((log) => (
-                                <div key={log.id} className="relative pl-4 border-l border-white/10 group">
+                                <motion.div
+                                    layout
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    key={log.id}
+                                    className="relative pl-4 border-l border-white/10 group"
+                                >
                                     <div className={`absolute left-[-2.5px] top-1.5 w-[5px] h-[5px] rounded-full ${log.severity === 'INFO' ? 'bg-[#39FF14]' :
-                                            log.severity === 'WARNING' ? 'bg-[#C9A44C]' :
-                                                log.severity === 'ERROR' ? 'bg-red-500' : 'bg-[#BFC3C7]'
+                                        log.severity === 'WARNING' ? 'bg-[#C9A44C]' :
+                                            log.severity === 'ERROR' ? 'bg-red-500' : 'bg-[#BFC3C7]'
                                         }`} />
                                     <div className="flex justify-between items-start">
                                         <p className="text-xs leading-tight text-[#BFC3C7] group-hover:text-white transition-colors">{log.action}</p>
@@ -198,7 +207,7 @@ export function ControlDashboard() {
                                             <PlayCircle size={10} /> REPLAY
                                         </button>
                                     </p>
-                                </div>
+                                </motion.div>
                             ))
                         )}
                     </div>

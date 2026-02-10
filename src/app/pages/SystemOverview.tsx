@@ -81,7 +81,7 @@ export function SystemOverview() {
                             <p>
                                 ARI implements a capability-based permission system. Rather than role-based access, each action is explicitly granted as a discrete capability that can be enabled, disabled, or time-limited.
                             </p>
-                            <div className="bg-black/50 backdrop-blur-md border border-[#39FF14]/30 p-6 my-6 rounded-xl">
+                            <div className="bg-black/50 backdrop-blur-md border border-[#39FF14]/30 p-6 my-6 rounded-[24px]">
                                 <div className="font-mono text-sm text-[#BFC3C7] space-y-2">
                                     <div><span className="text-[#39FF14]">capability:</span> data.read</div>
                                     <div><span className="text-[#39FF14]">scope:</span> production/analytics/*</div>

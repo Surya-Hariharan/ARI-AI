@@ -110,7 +110,7 @@ export function VoiceSetup() {
                     Skip Setup
                 </button>
                 <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-white/5 border border-white/10">
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
                         <div className={`w-1.5 h-1.5 rounded-full ${micPermission === 'granted' ? 'bg-[#39FF14]' : 'bg-red-500'}`} />
                         <span className="text-[10px] font-mono text-[#BFC3C7] uppercase">Mic: {micPermission}</span>
                     </div>
@@ -151,7 +151,7 @@ export function VoiceSetup() {
                                 <p className="text-[#BFC3C7] text-lg">Help ARI recognize how you speak.</p>
                             </div>
 
-                            <div className="bg-[#333333]/30 border border-[#333333] rounded-xl p-4 mt-4 w-full text-left flex gap-3">
+                            <div className="bg-[#333333]/30 border border-[#333333] rounded-[24px] p-5 mt-4 w-full text-left flex gap-3">
                                 <Shield className="w-5 h-5 text-[#BFC3C7] shrink-0" />
                                 <div>
                                     <h4 className="font-medium text-sm text-white">Private & Local</h4>
@@ -161,12 +161,14 @@ export function VoiceSetup() {
                                 </div>
                             </div>
 
-                            <button
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                                 onClick={requestPermission}
                                 className="mt-8 bg-[#39FF14] text-black font-semibold py-3 px-8 rounded-full hover:bg-[#32E612] transition-colors flex items-center gap-2"
                             >
                                 Start Training <ArrowRight className="w-4 h-4" />
-                            </button>
+                            </motion.button>
                         </motion.div>
                     )}
 
@@ -245,7 +247,9 @@ export function VoiceSetup() {
                                             className="absolute inset-0 bg-[#39FF14] rounded-full"
                                         />
                                     )}
-                                    <button
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
                                         onClick={handleStartRecording}
                                         disabled={isRecording}
                                         className={`w-20 h-20 rounded-full flex items-center justify-center transition-all ${isRecording
@@ -254,7 +258,7 @@ export function VoiceSetup() {
                                             }`}
                                     >
                                         <Mic className="w-8 h-8" />
-                                    </button>
+                                    </motion.button>
 
                                     {!isRecording && currentSampleIndex === 0 && (
                                         <button
@@ -330,12 +334,14 @@ export function VoiceSetup() {
                                 ARI is now trained to recognize your voice. Your voice data stays locally on this device.
                             </p>
 
-                            <button
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                                 onClick={() => navigate('/dashboard')}
                                 className="bg-[#39FF14] text-black font-semibold py-3 px-8 rounded-full hover:bg-gray-200 transition-colors w-full max-w-xs"
                             >
                                 Go to Dashboard
-                            </button>
+                            </motion.button>
                         </motion.div>
                     )}
 

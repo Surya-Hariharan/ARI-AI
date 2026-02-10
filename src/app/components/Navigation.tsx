@@ -44,16 +44,20 @@ export function Navigation({ onToggleMic }: NavigationProps) {
       <Link
         key={item.name}
         to={item.path}
-        className="flex flex-col items-center justify-center w-full h-full gap-1 active:scale-95 transition-transform duration-200"
+        className="flex flex-col items-center justify-center w-full h-full gap-1"
       >
-        <div className="relative p-1">
+        <motion.div
+          className="relative p-1"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+        >
           <item.icon
             size={20}
             strokeWidth={isActive ? 2.5 : 2}
             className={`transition-all duration-300 ${isActive ? 'text-[#39FF14] drop-shadow-[0_0_5px_rgba(57,255,20,0.5)]' : 'text-white/40'
               }`}
           />
-        </div>
+        </motion.div>
         <span className={`text-[8px] font-bold tracking-widest uppercase transition-colors duration-200 ${isActive ? 'text-[#39FF14]' : 'text-white/40'
           }`}>
           {item.name}
