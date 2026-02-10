@@ -4,8 +4,10 @@ from app.domain.models import (
     Decision, 
     DecisionOutcome, 
     Action,
+    Action,
     SystemState
 )
+from app.domain.oem_rules import get_oem_profile, OEMConstraint
 
 def decide(req: IncomingRequest, ctx: RequestContext) -> Decision:
     """
@@ -46,11 +48,20 @@ def decide(req: IncomingRequest, ctx: RequestContext) -> Decision:
     # 3. Intent Resolution (The 'Brain')
     actions = []
     
+    # 3.1 OEM Adaptations
+    oem_profile = get_oem_profile(ctx.device.oem)
+    
+    # Example Rule: If OEM requires High Priority Push for critical alerts, enforce it.
+    push_priority = oem_profile.safe_push_priority
+    
     if req.intent == "turn_on_light":
         actions.append(Action(
             action_type="IOT_CONTROL",
             target=req.payload.get("target_device", "unknown_device"),
-            params={"state": "ON"}
+            params={
+                "state": "ON", 
+                "push_priority": push_priority # Adapted parameter
+            }
         ))
     elif req.intent == "system_status":
         actions.append(Action(
@@ -64,10 +75,15 @@ def decide(req: IncomingRequest, ctx: RequestContext) -> Decision:
             target="speaker_main",
             params={"text": req.payload.get("text", "")}
         ))
+        
+    # Example Rule: If system detects BROKEN_WEBSOCKETS_IN_DOZE, maybe schedule a wake-up push?
+    if OEMConstraint.BROKEN_WEBSOCKETS_IN_DOZE in oem_profile.constraints:
+        # Just an example of logic drift based on OEM
+        pass 
     
     # 4. Final Approval
     return Decision(
         outcome=DecisionOutcome.ALLOW,
-        reason="Policy check passed",
+        reason=f"Policy check passed (OEM: {ctx.device.oem.value})",
         actions=actions
     )

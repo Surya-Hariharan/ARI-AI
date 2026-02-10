@@ -2,6 +2,7 @@ from fastapi import Depends, Request
 from datetime import datetime, timezone
 from app.core.security import get_current_user, TokenData
 from app.domain.models import RequestContext, DeviceContext, SystemState
+from app.domain.oem_rules import infer_oem_from_user_agent
 
 async def get_request_context(
     request: Request,
@@ -10,6 +11,8 @@ async def get_request_context(
     
     # Extract device info from headers or token
     device_id = request.headers.get("X-Device-ID", "unknown")
+    user_agent = request.headers.get("User-Agent", "")
+    oem = infer_oem_from_user_agent(user_agent)
     
     # Construct Context
     ctx = RequestContext(
@@ -18,7 +21,8 @@ async def get_request_context(
         state=SystemState.ACTIVE, # TODO: Fetch from Redis
         device=DeviceContext(
             device_id=device_id,
-            user_id=user.username
+            user_id=user.username,
+            oem=oem
         ),
         permissions=user.capabilities
     )

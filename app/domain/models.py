@@ -2,6 +2,7 @@ from enum import Enum
 from typing import Optional, Dict, Any
 from pydantic import BaseModel, Field
 from datetime import datetime
+from app.domain.oem_rules import OEM
 
 class RequestType(str, Enum):
     VOICE_COMMAND = "VOICE_COMMAND"
@@ -18,6 +19,7 @@ class DeviceContext(BaseModel):
     user_id: Optional[str] = None
     location: Optional[str] = None
     client_version: Optional[str] = None
+    oem: OEM = OEM.UNKNOWN
 
 class RequestContext(BaseModel):
     request_id: str
