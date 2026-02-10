@@ -13,6 +13,7 @@ import { Mic, X } from 'lucide-react';
 
 import { SystemProvider } from './context/SystemContext';
 import { DebugOverlay } from './components/DebugOverlay';
+import { SystemStatus } from './components/SystemStatus';
 
 function App() {
   const [isListening, setIsListening] = React.useState(false);
@@ -41,6 +42,7 @@ function App() {
         <BrowserRouter>
           <div className="relative w-full h-full overflow-hidden">
             <DebugOverlay />
+            <SystemStatus />
             {/* Edge Glow Animation - Global "Living" Effect */}
             <AnimatePresence mode="wait">
               {isListening && (
