@@ -1,0 +1,174 @@
+:root {
+  --hue: 130;
+  --sat: 100%;
+  --white: hsl(0, 0%, 100%);
+  --neon-green: rgba(57, 255, 20, 1);
+  --neon-glow: rgba(57, 255, 20, 0.2);
+  --neon-border: rgba(57, 255, 20, 0.8);
+  --border-color: rgba(0, 0, 0, 0.1);
+  --background-dark: #0B0B0B;
+  color-scheme: light dark;
+}
+
+.card-grid {
+  display: grid;
+  gap: 1.5em; /* Increased gap */
+  padding: 1em;
+  max-width: 100%;
+  width: 100%;
+}
+
+.magic-bento-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  min-height: 240px; /* Slightly taller */
+  width: 100%;
+  max-width: 100%;
+  padding: 2em; /* More internal padding */
+  border-radius: 2px; /* Square corners for ARI style */
+  border: 1px solid var(--border-color);
+  background: var(--background-dark);
+  font-weight: 300;
+  overflow: hidden;
+  transition: all 0.3s ease;
+
+  --glow-x: 50%;
+  --glow-y: 50%;
+  --glow-intensity: 0;
+  --glow-radius: 300px;
+}
+
+.magic-bento-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  border-color: rgba(57, 255, 20, 0.3);
+}
+
+.magic-bento-card__header,
+.magic-bento-card__content {
+  display: flex;
+  position: relative;
+  color: var(--white);
+  z-index: 10; /* Ensure text is above particles */
+}
+
+.magic-bento-card__header {
+  gap: 0.75em;
+  justify-content: space-between;
+  margin-bottom: auto; /* Push content down */
+}
+
+.magic-bento-card__content {
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+.magic-bento-card__label {
+  font-size: 10px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.magic-bento-card__title {
+  font-weight: 500;
+  font-size: 1.5rem;
+  margin: 0;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.magic-bento-card__description {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #BFC3C7;
+  opacity: 0.8;
+}
+
+/* Responsive Grid */
+@media (max-width: 767px) {
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .magic-bento-card {
+    min-height: 200px;
+  }
+}
+
+@media (min-width: 768px) {
+  .card-grid {
+    grid-template-columns: repeat(3, 1fr); /* 3 Columns for Observe, Intervene, Audit */
+  }
+}
+
+/* Border glow effect */
+.magic-bento-card--border-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px; /* Thinner border */
+  background: radial-gradient(
+    var(--glow-radius) circle at var(--glow-x) var(--glow-y),
+    rgba(57, 255, 20, calc(var(--glow-intensity) * 1)) 0%,
+    rgba(57, 255, 20, calc(var(--glow-intensity) * 0.2)) 50%,
+    transparent 100%
+  );
+  border-radius: inherit;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+  z-index: 2;
+}
+
+.magic-bento-card--border-glow:hover::after {
+  opacity: 1;
+}
+
+.particle-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.particle::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: rgba(57, 255, 20, 0.2);
+  border-radius: 50%;
+  z-index: -1;
+}
+
+/* Global spotlight styles */
+.global-spotlight {
+  mix-blend-mode: overlay; /* Better blending on white/dark mix */
+  will-change: transform, opacity;
+  z-index: 200 !important;
+  pointer-events: none;
+}
+
+.bento-section {
+  position: relative;
+  user-select: none;
+}

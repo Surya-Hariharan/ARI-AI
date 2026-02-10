@@ -4,13 +4,14 @@ import { motion } from 'motion/react';
 import { Footer } from '../components/Footer';
 import { GridBackground } from '../components/GridBackground';
 
+
 export function SystemOverview() {
     return (
         <main className="min-h-screen bg-[#0B0B0B] text-white font-[Inter] selection:bg-[#39FF14] selection:text-[#0B0B0B]">
-            <GridBackground gridSize={48} opacity={0.03} />
+            <GridBackground gridSize={48} opacity={0.04} waveDuration={3} />
 
             {/* Page Content */}
-            <div className="relative pt-24 pb-16 px-6 z-10">
+            <div className="relative pt-24 pb-8 px-6 z-10">
                 <div className="max-w-3xl mx-auto">
 
                     {/* Page Header */}
@@ -27,18 +28,33 @@ export function SystemOverview() {
                             Technical architecture and operational philosophy behind ARI's enterprise control infrastructure.
                         </p>
                     </motion.div>
+                </div>
+            </div>
 
-                    {/* Architecture Section */}
-                    <motion.section
+            {/* Architecture Section - White Block */}
+            <section className="bg-white py-24 px-6 relative overflow-hidden">
+                {/* Local Grid for White Section */}
+                <div
+                    className="absolute inset-0 opacity-[0.05]"
+                    style={{
+                        backgroundImage: `
+                            linear-gradient(to right, #000 1px, transparent 1px),
+                            linear-gradient(to bottom, #000 1px, transparent 1px)
+                        `,
+                        backgroundSize: '48px 48px'
+                    }}
+                />
+
+                <div className="max-w-3xl mx-auto relative z-10">
+                    <motion.div
                         initial={{ opacity: 0, y: 12 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.5 }}
-                        className="mb-16"
                     >
-                        <h2 className="text-xl font-medium text-white mb-4">Architecture</h2>
-                        <div className="w-8 h-[2px] bg-[#39FF14]/50 mb-6" />
-                        <div className="space-y-4 text-[#BFC3C7]/80 text-base leading-relaxed">
+                        <h2 className="text-xl font-medium text-black mb-4 uppercase tracking-widest">Architecture</h2>
+                        <div className="w-8 h-[2px] bg-[#39FF14] mb-6" />
+                        <div className="space-y-4 text-black/70 text-base leading-relaxed">
                             <p>
                                 ARI is built on a distributed architecture designed for resilience, scalability, and complete observability. Every component operates independently while maintaining strict coordination through a centralized control plane.
                             </p>
@@ -46,15 +62,18 @@ export function SystemOverview() {
                                 The system employs an event-driven design where all state changes are immutably logged, enabling full auditability and point-in-time recovery of any system state.
                             </p>
                         </div>
-                    </motion.section>
+                    </motion.div>
+                </div>
+            </section>
 
-                    {/* Permission Model Section */}
+            {/* Permission Model Section - Dark Block */}
+            <div className="relative py-24 px-6 z-10">
+                <div className="max-w-3xl mx-auto">
                     <motion.section
                         initial={{ opacity: 0, y: 12 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.5 }}
-                        className="mb-16"
                     >
                         <h2 className="text-xl font-medium text-white mb-4">Permission Model</h2>
                         <div className="w-8 h-[2px] bg-[#39FF14]/50 mb-6" />
@@ -75,40 +94,60 @@ export function SystemOverview() {
                             </p>
                         </div>
                     </motion.section>
+                </div>
+            </div>
 
-                    {/* Control Philosophy Section */}
-                    <motion.section
+            {/* Control Philosophy Section - White Block */}
+            <section className="bg-white py-24 px-6 relative overflow-hidden">
+                {/* Local Grid for White Section */}
+                <div
+                    className="absolute inset-0 opacity-[0.05]"
+                    style={{
+                        backgroundImage: `
+                            linear-gradient(to right, #000 1px, transparent 1px),
+                            linear-gradient(to bottom, #000 1px, transparent 1px)
+                        `,
+                        backgroundSize: '48px 48px'
+                    }}
+                />
+
+                <div className="max-w-3xl mx-auto relative z-10">
+                    <motion.div
                         initial={{ opacity: 0, y: 12 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.5 }}
-                        className="mb-16"
                     >
-                        <h2 className="text-xl font-medium text-white mb-4">Control Philosophy</h2>
-                        <div className="w-8 h-[2px] bg-[#39FF14]/50 mb-6" />
-                        <div className="space-y-4 text-[#BFC3C7]/80 text-base leading-relaxed">
+                        <h2 className="text-xl font-medium text-black mb-4 uppercase tracking-widest">Control Philosophy</h2>
+                        <div className="w-8 h-[2px] bg-[#39FF14] mb-6" />
+                        <div className="space-y-4 text-black/70 text-base leading-relaxed">
                             <p>
                                 The core principle is simple: humans remain in control. AI systems execute within explicitly defined boundaries, with every action traceable to a human decision.
                             </p>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
-                                <div className="border border-white/10 p-4 bg-white/5 rounded-lg">
-                                    <h3 className="text-sm font-medium text-white mb-2">Observe</h3>
-                                    <p className="text-sm text-[#BFC3C7]/60">Complete visibility into all AI operations in real-time.</p>
+                            <div className="mt-12 space-y-8">
+                                <div>
+                                    <h3 className="text-lg font-bold text-black mb-2 uppercase tracking-wide">Observe</h3>
+                                    <p className="text-black/70 leading-relaxed">
+                                        Real-time telemetry and complete observability into all AI operations. Nothing is hidden from the control plane.
+                                    </p>
                                 </div>
-                                <div className="border border-white/10 p-4 bg-white/5 rounded-lg">
-                                    <h3 className="text-sm font-medium text-white mb-2">Intervene</h3>
-                                    <p className="text-sm text-[#BFC3C7]/60">Immediate ability to pause, modify, or terminate any process.</p>
+                                <div>
+                                    <h3 className="text-lg font-bold text-black mb-2 uppercase tracking-wide">Intervene</h3>
+                                    <p className="text-black/70 leading-relaxed">
+                                        Immediate human override capability. Terminate, pause, or redirect any active process with a single command.
+                                    </p>
                                 </div>
-                                <div className="border border-white/10 p-4 bg-white/5 rounded-lg">
-                                    <h3 className="text-sm font-medium text-white mb-2">Audit</h3>
-                                    <p className="text-sm text-[#BFC3C7]/60">Complete historical record of every decision and action.</p>
+                                <div>
+                                    <h3 className="text-lg font-bold text-black mb-2 uppercase tracking-wide">Audit</h3>
+                                    <p className="text-black/70 leading-relaxed">
+                                        Immutable, cryptographic logging of every decision and action. Full historical replay capability for forensic analysis.
+                                    </p>
                                 </div>
                             </div>
                         </div>
-                    </motion.section>
-
+                    </motion.div>
                 </div>
-            </div>
+            </section>
 
             <Footer />
         </main>
