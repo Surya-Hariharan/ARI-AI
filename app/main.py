@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from app.core.logger import logger
 from app.config import settings
+from app.core.middleware import GateMiddleware
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -17,6 +18,14 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     lifespan=lifespan,
 )
+
+from app.api.routes import router as api_router
+app.include_router(api_router, prefix=settings.API_V1_STR)
+
+# Enforce the Gate
+
+# Enforce the Gate
+app.add_middleware(GateMiddleware)
 
 @app.get("/health")
 async def health_check():
