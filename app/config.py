@@ -21,6 +21,10 @@ class Settings(BaseSettings):
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
     
+    # Groq Intelligence
+    GROQ_API_KEY: str = ""  # Set in .env
+    GROQ_MODEL: str = "llama-3.3-70b-versatile"
+    
     model_config = SettingsConfigDict(case_sensitive=True, env_file=".env")
 
     def __init__(self, **kwargs):

@@ -4,6 +4,7 @@ from app.api.dependencies import get_request_context
 from app.domain.logic import decide
 from app.services.executor import execute_action
 from app.core.audit import analyze_and_record
+from app.core.rate_limit import check_rate_limits
 
 router = APIRouter()
 
@@ -21,6 +22,14 @@ async def process_command(
     # 1. GATE (Handled by Middleware + Dependency Injection of `ctx`)
     # If we are here, Auth is passed.
     
+    # 1.5 SECURITY (Rate Limits L2 & L3)
+    # Check if we should block this specific intent or voice session
+    security_decision = await check_rate_limits(req, ctx)
+    if security_decision:
+        # If rate limit hit, return early (don't execute logic)
+        background_tasks.add_task(analyze_and_record, req, ctx, security_decision)
+        return security_decision
+
     # 2. DECIDE (Pure Logic)
     decision = decide(req, ctx)
     

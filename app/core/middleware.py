@@ -1,5 +1,6 @@
 import time
 import uuid
+import structlog
 from typing import Callable, Awaitable
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware

@@ -1,45 +1,46 @@
-from datetime import datetime
-from sqlalchemy import text
+"""
+The Record Layer — immutable audit logging.
+Writes to Postgres (ORM) + structured log (stdout).
+Never crashes the request if recording fails.
+"""
 from app.core.database import AsyncSessionLocal
 from app.domain.models import IncomingRequest, Decision, RequestContext
+from app.models import AuditLog
 from app.core.logger import logger
+
 
 async def analyze_and_record(
     req: IncomingRequest, 
     ctx: RequestContext, 
     decision: Decision
 ):
-    """
-    The Record Layer.
-    Writes immutable audit logs.
-    This runs even if the action failed.
-    """
+    log_entry = {
+        "request_id": ctx.request_id,
+        "user_id": ctx.device.user_id,
+        "device_id": ctx.device.device_id,
+        "intent": req.intent,
+        "decision": decision.outcome.value if hasattr(decision.outcome, 'value') else str(decision.outcome),
+        "reason": decision.reason,
+        "actions": [a.model_dump() for a in decision.actions],
+    }
+
+    # 1. Always log to stdout (Splunk/Datadog/CloudWatch picks this up)
+    logger.info("audit_log", **log_entry)
+
+    # 2. Attempt Postgres insert (graceful degradation)
     try:
         async with AsyncSessionLocal() as session:
-            # In a real app, use a proper ORM model. For speed, using raw SQL here or assuming a table exists.
-            # We will use a structured log for now which is also a form of recording.
-            
-            log_entry = {
-                "timestamp": ctx.timestamp.isoformat(),
-                "request_id": ctx.request_id,
-                "user_id": ctx.device.user_id,
-                "device_id": ctx.device.device_id,
-                "intent": req.intent,
-                "decision": decision.outcome,
-                "reason": decision.reason,
-                "actions": [a.model_dump() for a in decision.actions]
-            }
-            
-            # 1. Structured Log (Splunk/Datadog/etc would pick this up)
-            logger.info("audit_log", **log_entry)
-            
-            # 2. Db Insert (Placeholder)
-            # await session.execute(
-            #     text("INSERT INTO audit_logs (data) VALUES (:data)"), 
-            #     {"data": json.dumps(log_entry)}
-            # )
-            # await session.commit()
-            
+            record = AuditLog(
+                request_id=ctx.request_id,
+                user_id=ctx.device.user_id,
+                device_id=ctx.device.device_id,
+                intent=req.intent,
+                decision=log_entry["decision"],
+                actions=log_entry["actions"],
+                meta={"reason": decision.reason, "oem": ctx.device.oem.value},
+            )
+            session.add(record)
+            await session.commit()
     except Exception as e:
-        logger.error("audit_recording_failed", error=str(e))
-        # Never crash the request because audit failed, but alert loudly.
+        # Never crash the request because audit failed, but alert loudly
+        logger.error("audit_db_write_failed", error=str(e))

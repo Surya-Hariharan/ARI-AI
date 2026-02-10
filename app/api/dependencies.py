@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from app.core.security import get_current_user, TokenData
 from app.domain.models import RequestContext, DeviceContext, SystemState
 from app.domain.oem_rules import infer_oem_from_user_agent
+from app.core.rate_limit import check_replay_attack
 
 async def get_request_context(
     request: Request,
@@ -12,6 +13,16 @@ async def get_request_context(
     # Extract device info from headers or token
     device_id = request.headers.get("X-Device-ID", "unknown")
     user_agent = request.headers.get("User-Agent", "")
+    nonce = request.headers.get("X-Nonce", "")
+    try:
+        ts = float(request.headers.get("X-Timestamp", "0"))
+    except ValueError:
+        ts = 0.0
+        
+    # Replay Protection (Critical)
+    if nonce and ts > 0:
+        await check_replay_attack(nonce, ts, device_id)
+        
     oem = infer_oem_from_user_agent(user_agent)
     
     # Construct Context

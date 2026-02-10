@@ -24,7 +24,7 @@ def setup_logging(json_logs: bool = False, log_level: str = "INFO"):
     else:
         # Format for development (Pretty print)
         processors = shared_processors + [
-            structlog.stdlib.ConsoleRenderer(),
+            structlog.dev.ConsoleRenderer(),
         ]
 
     structlog.configure(
