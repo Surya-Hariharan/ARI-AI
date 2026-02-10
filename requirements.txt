@@ -11,3 +11,4 @@ python-multipart>=0.0.20
 httpx>=0.28.0
 alembic>=1.14.0
 structlog>=24.4.0
+cryptography>=44.0.0

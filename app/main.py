@@ -29,6 +29,9 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning("database_unavailable", error=str(e), msg="Continuing without Postgres — audit logging to stdout only")
     
+    # Log auth provider
+    logger.info("auth_provider", provider=settings.AUTH_PROVIDER)
+    
     yield
     
     # Shutdown
@@ -42,10 +45,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Configure CORS
+# Configure CORS — environment-based origin whitelist
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific frontend URL
+    allow_origins=settings.cors_origin_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -54,19 +57,29 @@ app.add_middleware(
 # Enforce Rate Limits (Level 1)
 app.add_middleware(RateLimitMiddleware)
 
+# Register Routers
 from app.api.routes import router as api_router
 from app.api.intelligence_routes import router as intelligence_router
 from app.api.auth_routes import router as auth_router
+from app.api.state_routes import router as state_router
+from app.api.agent_routes import router as agent_router
+
 app.include_router(auth_router, prefix=settings.API_V1_STR)
 app.include_router(api_router, prefix=settings.API_V1_STR)
 app.include_router(intelligence_router, prefix=settings.API_V1_STR)
+app.include_router(state_router, prefix=settings.API_V1_STR)
+app.include_router(agent_router, prefix=settings.API_V1_STR)
 
 # Enforce the Gate
 app.add_middleware(GateMiddleware)
 
 @app.get("/health")
 async def health_check():
-    return {"status": "ok", "service": "ARI Control Plane"}
+    return {
+        "status": "ok",
+        "service": "ARI Control Plane",
+        "auth_provider": settings.AUTH_PROVIDER,
+    }
 
 if __name__ == "__main__":
     import uvicorn

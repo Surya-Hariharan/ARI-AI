@@ -10,9 +10,13 @@ class RequestType(str, Enum):
     DIRECT_CONTROL = "DIRECT_CONTROL"
 
 class SystemState(str, Enum):
-    ACTIVE = "ACTIVE"
-    STANDBY = "STANDBY"
+    IDLE = "IDLE"
+    LISTENING = "LISTENING"
+    PROCESSING = "PROCESSING"
+    EXECUTED = "EXECUTED"
+    DENIED = "DENIED"
     DEGRADED = "DEGRADED"
+    STANDBY = "STANDBY"
 
 class DeviceContext(BaseModel):
     device_id: str

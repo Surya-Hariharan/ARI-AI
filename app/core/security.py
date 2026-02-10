@@ -31,7 +31,11 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> TokenData:
+
+# ─── Local JWT Verification ────────────────────────────────────
+
+async def _verify_local_token(token: str) -> TokenData:
+    """Verifies a locally-issued JWT token (default provider)."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -47,6 +51,45 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> TokenData:
     except JWTError:
         raise credentials_exception
     return token_data
+
+
+# ─── Keycloak OIDC Verification ────────────────────────────────
+
+async def _verify_keycloak_token(token: str) -> TokenData:
+    """Verifies a token issued by Keycloak. Delegates to keycloak module."""
+    from app.core.keycloak import verify_keycloak_token
+    
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate Keycloak credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        kc_data = await verify_keycloak_token(token)
+        return TokenData(
+            username=kc_data.username,
+            capabilities=kc_data.capabilities,
+        )
+    except (RuntimeError, Exception):
+        raise credentials_exception
+
+
+# ─── Provider Router ───────────────────────────────────────────
+
+async def get_current_user(token: str = Depends(oauth2_scheme)) -> TokenData:
+    """
+    Routes token verification to the configured auth provider.
+    
+    AUTH_PROVIDER=local   → Local JWT (python-jose, HS256)
+    AUTH_PROVIDER=keycloak → Keycloak OIDC (JWKS, RS256)
+    """
+    if settings.AUTH_PROVIDER == "keycloak":
+        return await _verify_keycloak_token(token)
+    else:
+        return await _verify_local_token(token)
+
+
+# ─── Capability Checker ───────────────────────────────────────
 
 class CapabilityChecker:
     def __init__(self, required_capability: str):

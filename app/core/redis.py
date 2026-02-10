@@ -11,7 +11,9 @@ class RedisClient:
                 host=settings.REDIS_HOST,
                 port=settings.REDIS_PORT,
                 decode_responses=True,
-                auto_close_connection_pool=False
+                auto_close_connection_pool=False,
+                socket_timeout=2,
+                socket_connect_timeout=2,
             )
         return cls._client
 

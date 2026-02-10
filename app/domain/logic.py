@@ -24,6 +24,14 @@ def decide(req: IncomingRequest, ctx: RequestContext) -> Decision:
                 reason="System is in STANDBY mode. Wake up first.",
             )
 
+    if ctx.state == SystemState.DEGRADED:
+        # In degraded state, only allow system events and status queries
+        if req.type != "SYSTEM_EVENT" and req.intent != "system_status":
+            return Decision(
+                outcome=DecisionOutcome.DENY,
+                reason="System is in DEGRADED mode. Only system queries allowed.",
+            )
+
     # 2. Capability Check (Capability-based permissions)
     # Map intents to required capabilities
     required_capability = f"intent.{req.intent}"
