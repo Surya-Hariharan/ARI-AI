@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Power, Cpu, Sliders, Fingerprint, Mic, X } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface NavigationProps {
   isListening?: boolean;
@@ -76,22 +76,30 @@ export function Navigation({ isListening, onToggleMic }: NavigationProps) {
                 </div>
               )}
 
-              {isListening && (
-                <motion.div
-                  initial={{ scale: 1, opacity: 0.5 }}
-                  animate={{ scale: 1.5, opacity: 0 }}
-                  transition={{ repeat: Infinity, duration: 1.5 }}
-                  className="absolute inset-0 bg-[#39FF14] rounded-full -z-10"
-                />
-              )}
+              <AnimatePresence>
+                {isListening && (
+                  <motion.div
+                    key="mic-glow-outer"
+                    initial={{ scale: 1, opacity: 0.5 }}
+                    animate={{ scale: 1.5, opacity: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ repeat: Infinity, duration: 1.5 }}
+                    className="absolute inset-0 bg-[#39FF14] rounded-full -z-10"
+                  />
+                )}
+              </AnimatePresence>
 
-              {isListening && (
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
-                  className="absolute inset-1 rounded-full bg-black z-0 border border-[#39FF14]/40"
-                />
-              )}
+              <AnimatePresence>
+                {isListening && (
+                  <motion.div
+                    key="mic-glow-inner"
+                    animate={{ rotate: 360 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+                    className="absolute inset-1 rounded-full bg-black z-0 border border-[#39FF14]/40"
+                  />
+                )}
+              </AnimatePresence>
             </button>
           </div>
 

@@ -37,25 +37,28 @@ function App() {
       <BrowserRouter>
         <div className="relative w-full h-full overflow-hidden">
           {/* Edge Glow Animation - Global "Living" Effect */}
-          <AnimatePresence>
+          <AnimatePresence mode="wait">
             {isListening && (
               <motion.div
+                key="edge-glow"
                 initial={{ opacity: 0 }}
                 animate={{
-                  opacity: [0.5, 0.85, 0.5],
+                  opacity: [0.3, 0.7, 0.3],
                   boxShadow: [
-                    'inset 0 0 30px rgba(57,255,20,0.2)',
-                    'inset 0 0 80px rgba(57,255,20,0.5)',
-                    'inset 0 0 30px rgba(57,255,20,0.2)'
+                    'inset 0 0 20px rgba(57,255,20,0.2)',
+                    'inset 0 0 60px rgba(57,255,20,0.4)',
+                    'inset 0 0 20px rgba(57,255,20,0.2)'
                   ]
                 }}
-                exit={{ opacity: 0 }}
-                transition={{
-                  repeat: Infinity,
-                  duration: 4,
-                  ease: "easeInOut"
+                exit={{
+                  opacity: 0,
+                  transition: { duration: 0.2, ease: "easeOut" }
                 }}
-                className="fixed inset-0 pointer-events-none z-[60] border-[2px] border-[#39FF14]/60 rounded-none md:rounded-[40px]"
+                transition={{
+                  opacity: { repeat: Infinity, duration: 3, ease: "easeInOut" },
+                  boxShadow: { repeat: Infinity, duration: 3, ease: "easeInOut" }
+                }}
+                className="fixed inset-0 pointer-events-none z-[60] border-[2px] border-[#39FF14]/40 rounded-none md:rounded-[40px]"
               />
             )}
           </AnimatePresence>
