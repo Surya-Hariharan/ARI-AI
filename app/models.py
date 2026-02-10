@@ -21,3 +21,9 @@ class SignedRequest(BaseModel):
         if abs(current_time - v) > 60:
             raise ValueError("Request timestamp too old or in future")
         return v
+
+class CommandResponse(BaseModel):
+    action: str = Field(..., description="Action identifier e.g. FLASHLIGHT_TOGGLE")
+    parameters: Dict[str, Any] = {}
+    tts_response: Optional[str] = None
+    status: str = "EXECUTE"  # EXECUTE, DENY, CONFIRM

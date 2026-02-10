@@ -1,13 +1,7 @@
 from typing import Dict, Any, Optional
 from pydantic import BaseModel
+from app.models import CommandResponse
 from .state import state_manager, SystemState
-
-# Response model for the Slave Node
-class CommandResponse(BaseModel):
-    action: str              # e.g. "FLASHLIGHT_TOGGLE", "OPEN_APP", "SPEAK"
-    parameters: Dict[str, Any] = {}
-    tts_response: Optional[str] = None
-    status: str = "EXECUTE"  # EXECUTE, DENY, CONFIRM
 
 class IntentEngine:
     def process_command(self, command_text: str, device_context: Dict[str, Any]) -> CommandResponse:
