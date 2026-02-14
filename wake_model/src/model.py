@@ -10,11 +10,8 @@ from config import Config
 
 class DepthwiseSeparableConv2d(nn.Module):
     """
-    Depthwise Separable Convolution.
-    Consists of depthwise convolution followed by pointwise (1x1) convolution.
-    Significantly reduces parameters compared to standard convolution.
+    Depthwise Separable Convolution: depthwise conv + pointwise conv.
     """
-    
     def __init__(
         self,
         in_channels: int,
@@ -24,21 +21,7 @@ class DepthwiseSeparableConv2d(nn.Module):
         padding: Tuple[int, int] = (1, 1),
         bias: bool = False
     ):
-        """
-        Initialize depthwise separable convolution.
-        
-        Args:
-            in_channels: Number of input channels
-            out_channels: Number of output channels
-            kernel_size: Convolution kernel size
-            stride: Convolution stride
-            padding: Padding size
-            bias: Whether to use bias
-        """
-        super(DepthwiseSeparableConv2d, self).__init__()
-        
-        # Depthwise convolution (groups=in_channels means each input channel
-        # is convolved separately)
+        super().__init__()
         self.depthwise = nn.Conv2d(
             in_channels=in_channels,
             out_channels=in_channels,
@@ -48,8 +31,6 @@ class DepthwiseSeparableConv2d(nn.Module):
             groups=in_channels,
             bias=bias
         )
-        
-        # Pointwise convolution (1x1 convolution to combine channels)
         self.pointwise = nn.Conv2d(
             in_channels=in_channels,
             out_channels=out_channels,
@@ -58,9 +39,7 @@ class DepthwiseSeparableConv2d(nn.Module):
             padding=(0, 0),
             bias=bias
         )
-    
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Forward pass."""
         x = self.depthwise(x)
         x = self.pointwise(x)
         return x
@@ -68,78 +47,71 @@ class DepthwiseSeparableConv2d(nn.Module):
 
 class DSCNN(nn.Module):
     """
-    Depthwise Separable CNN for wake-word detection.
-    Lightweight architecture suitable for embedded deployment.
+    Redesigned DS-CNN for wake-word detection.
+    - Gradual channel expansion: 1→16→32→64→64
+    - Only one stride (2,2) in second block
+    - No Dropout, no pooling
+    - Input shape: (batch, 1, 40, 97)
     """
-    
     def __init__(
         self,
-        input_channels: int = Config.INPUT_CHANNELS,
-        num_classes: int = Config.NUM_CLASSES,
-        layer_channels: Tuple[int, ...] = Config.MODEL_LAYERS,
-        dropout_rate: float = Config.DROPOUT_RATE,
-        input_shape: Tuple[int, int] = Config.get_feature_shape()
+        input_channels: int = 1,
+        num_classes: int = 2,
+        input_shape: Tuple[int, int] = (40, 97)
     ):
-        """
-        Initialize DS-CNN model.
-        
-        Args:
-            input_channels: Number of input channels (1 for mono audio features)
-            num_classes: Number of output classes
-            layer_channels: Tuple specifying number of channels for each DS conv layer
-            dropout_rate: Dropout probability
-            input_shape: Shape of input features (n_mels, time_steps)
-        """
-        super(DSCNN, self).__init__()
-        
+        super().__init__()
         self.input_channels = input_channels
         self.num_classes = num_classes
         self.input_shape = input_shape
-        
-        # First standard convolution layer
+
+        # Channel progression
+        chs = [1, 16, 32, 64, 64]
+
+        # First standard conv (no stride)
         self.conv1 = nn.Conv2d(
-            in_channels=input_channels,
-            out_channels=layer_channels[0],
+            in_channels=chs[0],
+            out_channels=chs[1],
             kernel_size=(3, 3),
-            stride=(2, 2),
+            stride=(1, 1),
             padding=(1, 1),
             bias=False
         )
-        self.bn1 = nn.BatchNorm2d(layer_channels[0])
+        self.bn1 = nn.BatchNorm2d(chs[1])
         self.relu1 = nn.ReLU(inplace=True)
-        
-        # Depthwise separable convolution layers
+
+        # DS-CNN blocks
         self.ds_layers = nn.ModuleList()
-        in_ch = layer_channels[0]
-        
-        for out_ch in layer_channels[1:]:
-            ds_block = nn.Sequential(
-                DepthwiseSeparableConv2d(
-                    in_channels=in_ch,
-                    out_channels=out_ch,
-                    kernel_size=(3, 3),
-                    stride=(1, 1),
-                    padding=(1, 1),
-                    bias=False
-                ),
-                nn.BatchNorm2d(out_ch),
-                nn.ReLU(inplace=True),
-                nn.Dropout2d(p=dropout_rate)
-            )
-            self.ds_layers.append(ds_block)
-            in_ch = out_ch
-        
-        # Global average pooling
+        # Block 1: 16→32, stride 2 (downsampling)
+        self.ds_layers.append(nn.Sequential(
+            DepthwiseSeparableConv2d(
+                in_channels=chs[1], out_channels=chs[2],
+                kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False),
+            nn.BatchNorm2d(chs[2]),
+            nn.ReLU(inplace=True)
+        ))
+        # Block 2: 32→64, stride 1
+        self.ds_layers.append(nn.Sequential(
+            DepthwiseSeparableConv2d(
+                in_channels=chs[2], out_channels=chs[3],
+                kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False),
+            nn.BatchNorm2d(chs[3]),
+            nn.ReLU(inplace=True)
+        ))
+        # Block 3: 64→64, stride 1
+        self.ds_layers.append(nn.Sequential(
+            DepthwiseSeparableConv2d(
+                in_channels=chs[3], out_channels=chs[4],
+                kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False),
+            nn.BatchNorm2d(chs[4]),
+            nn.ReLU(inplace=True)
+        ))
+
         self.global_avg_pool = nn.AdaptiveAvgPool2d((1, 1))
-        
-        # Fully connected classifier
-        self.fc = nn.Linear(layer_channels[-1], num_classes)
-        
-        # Initialize weights
+        self.fc = nn.Linear(chs[4], num_classes)
+
         self._initialize_weights()
-    
+
     def _initialize_weights(self) -> None:
-        """Initialize model weights using He initialization."""
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
@@ -151,118 +123,77 @@ class DSCNN(nn.Module):
             elif isinstance(m, nn.Linear):
                 nn.init.normal_(m.weight, 0, 0.01)
                 nn.init.constant_(m.bias, 0)
-    
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Forward pass of the model.
-        
-        Args:
-            x: Input tensor. Shape: (batch, 1, n_mels, time_steps)
-        
-        Returns:
-            Output logits. Shape: (batch, num_classes)
-        """
-        # First convolution
+        # Assert input shape
+        assert x.shape[1:] == (1, 40, 97), f"Input must be (batch, 1, 40, 97), got {x.shape}"
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu1(x)
-        
-        # Depthwise separable convolutions
         for ds_layer in self.ds_layers:
             x = ds_layer(x)
-        
-        # Global average pooling
+        # Save shape before pooling for reporting
+        self._prepool_shape = x.shape
         x = self.global_avg_pool(x)
-        
-        # Flatten
         x = x.view(x.size(0), -1)
-        
-        # Fully connected layer
         x = self.fc(x)
-        
         return x
-    
+
     def get_num_parameters(self) -> Tuple[int, int]:
-        """
-        Calculate number of parameters in the model.
-        
-        Returns:
-            Tuple of (total_params, trainable_params)
-        """
         total_params = sum(p.numel() for p in self.parameters())
         trainable_params = sum(p.numel() for p in self.parameters() if p.requires_grad)
         return total_params, trainable_params
-    
+
     def get_model_size_mb(self) -> float:
-        """
-        Estimate model size in megabytes (FP32).
-        
-        Returns:
-            Model size in MB
-        """
         total_params, _ = self.get_num_parameters()
-        # FP32: 4 bytes per parameter
-        size_mb = (total_params * 4) / (1024 ** 2)
-        return size_mb
+        return (total_params * 4) / (1024 ** 2)
+
+    def get_quantized_size_mb(self) -> float:
+        total_params, _ = self.get_num_parameters()
+        return (total_params * 1) / (1024 ** 2)
+
+    def layer_param_breakdown(self) -> list:
+        breakdown = []
+        # Conv1
+        conv1_params = sum(p.numel() for p in self.conv1.parameters())
+        breakdown.append(("conv1", conv1_params))
+        # DS blocks
+        for i, ds in enumerate(self.ds_layers):
+            dw = ds[0]
+            dw_params = sum(p.numel() for p in dw.parameters())
+            bn_params = sum(p.numel() for p in ds[1].parameters())
+            breakdown.append((f"ds_block{i+1}_dwsep", dw_params))
+            breakdown.append((f"ds_block{i+1}_bn", bn_params))
+        # FC
+        fc_params = sum(p.numel() for p in self.fc.parameters())
+        breakdown.append(("fc", fc_params))
+        return breakdown
+
+    def print_model_details(self) -> None:
+        print("\nModel Details:")
+        total, trainable = self.get_num_parameters()
+        print(f"Total parameters: {total}")
+        print(f"Trainable parameters: {trainable}")
+        print("Layer-by-layer breakdown:")
+        for name, count in self.layer_param_breakdown():
+            print(f"  {name:20s}: {count}")
+        print(f"Float32 model size: {self.get_model_size_mb():.3f} MB")
+        print(f"Quantized INT8 size: {self.get_quantized_size_mb():.3f} MB")
+        if hasattr(self, '_prepool_shape'):
+            print(f"Final tensor shape before global pooling: {self._prepool_shape}")
+        print("\nStride (2,2) is applied in the FIRST DS block (16→32 channels).\n")
 
 
 def create_model(
-    input_channels: int = Config.INPUT_CHANNELS,
-    num_classes: int = Config.NUM_CLASSES,
-    layer_channels: Tuple[int, ...] = Config.MODEL_LAYERS,
-    dropout_rate: float = Config.DROPOUT_RATE
+    input_channels: int = 1,
+    num_classes: int = 2
 ) -> DSCNN:
-    """
-    Factory function to create DS-CNN model.
-    
-    Args:
-        input_channels: Number of input channels
-        num_classes: Number of output classes
-        layer_channels: Tuple specifying channels for each layer
-        dropout_rate: Dropout probability
-    
-    Returns:
-        DSCNN model instance
-    """
-    model = DSCNN(
-        input_channels=input_channels,
-        num_classes=num_classes,
-        layer_channels=layer_channels,
-        dropout_rate=dropout_rate
-    )
-    return model
+    return DSCNN(input_channels=input_channels, num_classes=num_classes)
 
 
 def print_model_info(model: nn.Module) -> None:
-    """
-    Print detailed model information.
-    
-    Args:
-        model: PyTorch model
-    """
-    if isinstance(model, DSCNN):
-        total_params, trainable_params = model.get_num_parameters()
-        model_size = model.get_model_size_mb()
-        quantized_size = model_size / 4  # INT8 quantization reduces size by ~4x
-        
-        print("=" * 60)
-        print("Model Information")
-        print("=" * 60)
-        print(f"Architecture: DS-CNN (Depthwise Separable CNN)")
-        print(f"Input shape: (batch, {model.input_channels}, {model.input_shape[0]}, {model.input_shape[1]})")
-        print(f"Output classes: {model.num_classes}")
-        print(f"Total parameters: {total_params:,}")
-        print(f"Trainable parameters: {trainable_params:,}")
-        print(f"Model size (FP32): {model_size:.2f} MB")
-        print(f"Estimated size (INT8 quantized): {quantized_size:.2f} MB")
-        print(f"Target size: {Config.TARGET_MODEL_SIZE_MB} MB")
-        
-        if quantized_size <= Config.TARGET_MODEL_SIZE_MB:
-            print(f"✓ Model meets size constraint (<{Config.TARGET_MODEL_SIZE_MB} MB)")
-        else:
-            print(f"✗ Model exceeds size constraint (>{Config.TARGET_MODEL_SIZE_MB} MB)")
-        
-        print("=" * 60)
+    if hasattr(model, 'print_model_details'):
+        model.print_model_details()
     else:
         total_params = sum(p.numel() for p in model.parameters())
         print(f"Total parameters: {total_params:,}")
