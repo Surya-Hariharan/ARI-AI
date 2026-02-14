@@ -1,0 +1,4 @@
+v0.1
+- Initial dataset scaffold
+- Multi-class setup
+- No samples collected yet
