@@ -47,25 +47,20 @@ class DepthwiseSeparableConv2d(nn.Module):
 
 class DSCNN(nn.Module):
     """
-    Redesigned DS-CNN for wake-word detection.
-    - Gradual channel expansion: 1→16→32→64→64
-    - Only one stride (2,2) in second block
-    - No Dropout, no pooling
-    - Input shape: (batch, 1, 40, 97)
+    High-capacity DS-CNN for robust wake-word detection.
+    Channel progression: 1→32→64→128→128
+    4 DS blocks, stride (2,2) in second block only.
+    No pooling, no dropout.
+    Input: (batch, 1, 40, 97)
     """
-    def __init__(
-        self,
-        input_channels: int = 1,
-        num_classes: int = 2,
-        input_shape: Tuple[int, int] = (40, 97)
-    ):
+    def __init__(self, input_channels: int = 1, num_classes: int = 2, input_shape: Tuple[int, int] = (40, 97)):
         super().__init__()
         self.input_channels = input_channels
         self.num_classes = num_classes
         self.input_shape = input_shape
 
         # Channel progression
-        chs = [1, 16, 32, 64, 64]
+        chs = [1, 32, 64, 128, 128, 128]
 
         # First standard conv (no stride)
         self.conv1 = nn.Conv2d(
@@ -81,23 +76,23 @@ class DSCNN(nn.Module):
 
         # DS-CNN blocks
         self.ds_layers = nn.ModuleList()
-        # Block 1: 16→32, stride 2 (downsampling)
+        # Block 1: 32→64, stride 1
         self.ds_layers.append(nn.Sequential(
             DepthwiseSeparableConv2d(
                 in_channels=chs[1], out_channels=chs[2],
-                kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False),
+                kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False),
             nn.BatchNorm2d(chs[2]),
             nn.ReLU(inplace=True)
         ))
-        # Block 2: 32→64, stride 1
+        # Block 2: 64→128, stride 2 (downsampling)
         self.ds_layers.append(nn.Sequential(
             DepthwiseSeparableConv2d(
                 in_channels=chs[2], out_channels=chs[3],
-                kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False),
+                kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False),
             nn.BatchNorm2d(chs[3]),
             nn.ReLU(inplace=True)
         ))
-        # Block 3: 64→64, stride 1
+        # Block 3: 128→128, stride 1
         self.ds_layers.append(nn.Sequential(
             DepthwiseSeparableConv2d(
                 in_channels=chs[3], out_channels=chs[4],
@@ -105,9 +100,17 @@ class DSCNN(nn.Module):
             nn.BatchNorm2d(chs[4]),
             nn.ReLU(inplace=True)
         ))
+        # Block 4: 128→128, stride 1
+        self.ds_layers.append(nn.Sequential(
+            DepthwiseSeparableConv2d(
+                in_channels=chs[4], out_channels=chs[5],
+                kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False),
+            nn.BatchNorm2d(chs[5]),
+            nn.ReLU(inplace=True)
+        ))
 
         self.global_avg_pool = nn.AdaptiveAvgPool2d((1, 1))
-        self.fc = nn.Linear(chs[4], num_classes)
+        self.fc = nn.Linear(chs[5], num_classes)
 
         self._initialize_weights()
 
@@ -125,14 +128,12 @@ class DSCNN(nn.Module):
                 nn.init.constant_(m.bias, 0)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # Assert input shape
         assert x.shape[1:] == (1, 40, 97), f"Input must be (batch, 1, 40, 97), got {x.shape}"
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu1(x)
         for ds_layer in self.ds_layers:
             x = ds_layer(x)
-        # Save shape before pooling for reporting
         self._prepool_shape = x.shape
         x = self.global_avg_pool(x)
         x = x.view(x.size(0), -1)
@@ -181,7 +182,7 @@ class DSCNN(nn.Module):
         print(f"Quantized INT8 size: {self.get_quantized_size_mb():.3f} MB")
         if hasattr(self, '_prepool_shape'):
             print(f"Final tensor shape before global pooling: {self._prepool_shape}")
-        print("\nStride (2,2) is applied in the FIRST DS block (16→32 channels).\n")
+        print("\nStride (2,2) is applied in the SECOND DS block (64→128 channels).\n")
 
 
 def create_model(
