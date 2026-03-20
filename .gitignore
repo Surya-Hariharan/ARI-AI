@@ -34,3 +34,10 @@ Thumbs.db
 coverage/
 .cache/
 
+## Images
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.webp
