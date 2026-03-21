@@ -1,8 +1,9 @@
 # Device Capability Abstraction Model
 
-Every connected device must report its capabilities to the Gateway upon initialization. 
+Every connected device must report its capabilities to the Gateway upon initialization.
 
 ## Capability Schema
+
 ```json
 {
   "device_id": "string",
