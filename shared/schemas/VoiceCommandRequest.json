@@ -1,0 +1,10 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "VoiceCommandRequest",
+  "type": "object",
+  "properties": {
+    "device_id": { "type": "string" },
+    "command_text": { "type": "string" }
+  },
+  "required": ["device_id", "command_text"]
+}
