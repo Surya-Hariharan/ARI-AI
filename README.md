@@ -9,7 +9,7 @@
 
 ## 🌟 Overview
 
-**ARI (Advanced Responsive Interface)** is a modern, production-ready platform designed for AI orchestration and intelligent task execution. It features a luxury Apple-inspired frontend and a robust, highly scalable multi-service backend.
+**ARI (Autonomous Reasoning Interface)** is a modern, production-ready platform designed for AI orchestration and intelligent task execution. It features a luxury Apple-inspired frontend and a robust, highly scalable multi-service backend.
 
 With ARI, users can interact with intelligent agents, manage their workflows, monitor pipelines, and securely authenticate via an advanced OTP-based system.
 
