@@ -35,6 +35,33 @@ Thumbs.db
 coverage/
 .cache/
 
+## Python
+__pycache__/
+*.pyc
+*.pyo
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+ENV/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+model_cache/.cache/
+
+## Go
+*.exe
+*.exe~
+*.dll
+*.dylib
+tmp/
+main
+*.test
+*.out
+
 ## Images
 *.png
 *.jpg
