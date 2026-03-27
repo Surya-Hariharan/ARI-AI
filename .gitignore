@@ -51,6 +51,7 @@ ENV/
 .pytest_cache/
 .mypy_cache/
 model_cache/.cache/
+backend/agent_python/model_cache/asr/
 
 ## Go
 *.exe
