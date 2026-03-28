@@ -70,3 +70,7 @@ main
 *.gif
 *.svg
 *.webp
+
+## Custom Temporary Logs
+execution_logs.txt
+gateway_logs.txt
