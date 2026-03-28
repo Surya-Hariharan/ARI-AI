@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   redis:
     image: redis:7
@@ -13,7 +11,7 @@ services:
       - "8080:8080"
     volumes:
       - ./backend/gateway_go:/app
-    command: /bin/sh -c "go get github.com/gofiber/fiber/v2@v2.52.5 github.com/gofiber/websocket/v2@v2.2.1 github.com/redis/go-redis/v9@v9.7.0 github.com/jackc/pgx/v5/pgxpool@v5.7.2 github.com/google/uuid@v1.6.0 && go mod tidy && air"
+    command: ["air"]
     environment:
       - REDIS_ADDR=redis:6379
       - AGENT_URL=http://agent:8000
@@ -31,6 +29,7 @@ services:
       - ./backend/agent_python:/app
     environment:
       - REDIS_ADDR=redis:6379
+      - ARI_SPACY_AUTO_DOWNLOAD=false
     env_file:
       - .env
     depends_on:
@@ -43,7 +42,7 @@ services:
       context: ./backend/execution_go
     volumes:
       - ./backend/execution_go:/app
-    command: /bin/sh -c "go get github.com/jackc/pgx/v5/pgxpool@v5.7.2 github.com/redis/go-redis/v9@v9.7.0 github.com/google/uuid@v1.6.0 && go mod tidy && air"
+    command: ["air"]
     environment:
       - REDIS_ADDR=redis:6379
     env_file:
