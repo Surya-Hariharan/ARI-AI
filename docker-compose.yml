@@ -62,3 +62,4 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
       - VITE_HOST=0.0.0.0
+      - VITE_GATEWAY_URL=http://gateway:8080
