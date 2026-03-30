@@ -66,3 +66,19 @@ The runtime now enforces stricter defaults outside development.
 5. `ARI_ENABLE_LEGACY_PLAN_ENDPOINT`: defaults to `false`; when disabled, `/plan` returns `410` and clients should use `/voice/runtime/process`.
 
 In development only, a deterministic fallback voiceprint key is used when no key is configured.
+
+### Startup Health Check
+
+On startup, the agent now performs a strict security configuration check.
+
+1. In non-development mode (or when `ARI_REQUIRE_ENCRYPTION_KEY=true`), startup fails if `ARI_MEMORY_ENCRYPTION_KEY` is missing.
+2. Voiceprint encryption must resolve through `ARI_VOICEPRINT_ENCRYPTION_KEY` or `ARI_MEMORY_ENCRYPTION_KEY`.
+3. Failures are surfaced as startup exceptions before serving requests.
+
+### Runtime Contract Utility
+
+Use this utility to compare compatibility between `/voice/process` and `/voice/runtime/process`.
+
+```bash
+python backend/agent_python/runtime_contract_check.py --base-url http://localhost:8000
+```
