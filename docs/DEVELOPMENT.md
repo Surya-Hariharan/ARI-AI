@@ -54,3 +54,15 @@ Recommended local cleanup command from repo root:
 # PowerShell
 Remove-Item -Recurse -Force backend/agent_python/__pycache__, backend/gateway_go/tmp, backend/execution_go/tmp -ErrorAction SilentlyContinue
 ```
+
+## Runtime Security And Compatibility Flags
+
+The runtime now enforces stricter defaults outside development.
+
+1. `ARI_ENV`: environment name (`development`, `dev`, `local`, `test` are treated as non-production).
+2. `ARI_REQUIRE_ENCRYPTION_KEY`: optional override (`true`/`false`) for key policy.
+3. `ARI_MEMORY_ENCRYPTION_KEY`: required in non-development unless policy override disables enforcement.
+4. `ARI_VOICEPRINT_ENCRYPTION_KEY`: preferred voiceprint key; falls back to `ARI_MEMORY_ENCRYPTION_KEY` when set.
+5. `ARI_ENABLE_LEGACY_PLAN_ENDPOINT`: defaults to `false`; when disabled, `/plan` returns `410` and clients should use `/voice/runtime/process`.
+
+In development only, a deterministic fallback voiceprint key is used when no key is configured.
