@@ -38,3 +38,19 @@ If you need to change your database layer schemas or credentials:
   ```
 
 Happy Coding! 💡
+
+## Repository Hygiene Policy
+
+To keep deployable branches production-focused, do not commit transient development artifacts.
+
+1. Remove test/demo scaffolding files before shipping runtime changes.
+2. Do not commit Python cache artifacts such as `__pycache__/` and `*.pyc`.
+3. Do not commit temporary Go build outputs under `tmp/`.
+4. Keep Docker build contexts clean by excluding test/spec/demo files from images.
+
+Recommended local cleanup command from repo root:
+
+```bash
+# PowerShell
+Remove-Item -Recurse -Force backend/agent_python/__pycache__, backend/gateway_go/tmp, backend/execution_go/tmp -ErrorAction SilentlyContinue
+```

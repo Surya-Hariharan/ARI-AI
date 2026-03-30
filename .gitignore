@@ -74,3 +74,17 @@ main
 ## Custom Temporary Logs
 execution_logs.txt
 gateway_logs.txt
+
+## Test/demo artifacts
+**/test_*.py
+**/*_test.py
+**/*_test.go
+**/*demo*.py
+**/*.spec.*
+**/*.test.*
+
+## Additional caches
+.ruff_cache/
+.hypothesis/
+**/.pytest_cache/
+**/__pycache__/
