@@ -22,7 +22,8 @@ services:
 
   agent:
     build:
-      context: ./backend/agent_python
+      context: ./backend
+      dockerfile: agent_python/Dockerfile
     ports:
       - "8000:8000"
     volumes:
