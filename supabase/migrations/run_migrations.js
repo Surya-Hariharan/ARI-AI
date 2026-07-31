@@ -25,6 +25,7 @@ async function runMigrations() {
 
   const client = new Client({
     connectionString: dbUrl,
+    ssl: dbUrl.includes('supabase') || dbUrl.includes('sslmode=require') ? { rejectUnauthorized: false } : false,
   });
 
   try {

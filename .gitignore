@@ -1,44 +1,55 @@
-## Node modules
+# ============================================================
+# ARI System — Git Ignore Configuration
+# Protects internal files, credentials, logs, builds & caches
+# ============================================================
+
+# ─── Environment & Secrets ──────────────────────────────────
+.env
+.env.*
+!.env.example
+!.env.template
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
+*.secret
+credentials.json
+service-account*.json
+id_rsa
+id_ed25519
+
+# ─── Supabase & Database ─────────────────────────────────────
+.supabase/
+supabase/.temp/
+supabase/.branches/
+supabase/.env
+*.db
+*.sqlite
+*.sqlite3
+
+# ─── Node & Dependencies ────────────────────────────────────
 node_modules/
-
-## Build output
-dist/
-build/
-.vite/
-
-## Logs
-*.log
+**/node_modules/
+package-lock.json.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-## Environment files
-.env
-.env.*
-!.env.example
-!.env.template
+# ─── Build & Bundler Outputs ────────────────────────────────
+dist/
+**/dist/
+build/
+**/build/
+.vite/
+**/.vite/
+out/
+.next/
 
-## OS files
-.DS_Store
-Thumbs.db
-
-## IDE/editor
-.vscode/
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-
-## Coverage and cache
-coverage/
-.cache/
-
-## Python
+# ─── Python Caches & Virtual Envs ───────────────────────────
 __pycache__/
-*.pyc
-*.pyo
+**/__pycache__/
 *.py[cod]
 *$py.class
 *.so
@@ -49,33 +60,50 @@ env/
 ENV/
 *.egg-info/
 .pytest_cache/
+**/.pytest_cache/
 .mypy_cache/
-model_cache/.cache/
-backend/agent_python/model_cache/asr/
+.ruff_cache/
+.hypothesis/
+model_cache/
+**/model_cache/
 
-## Go
+# ─── Go Binaries & Temp Files ───────────────────────────────
 *.exe
 *.exe~
 *.dll
 *.dylib
 tmp/
+**/tmp/
+temp/
+**/temp/
 main
 *.test
 *.out
 
-## Images
-*.png
-*.jpg
-*.jpeg
-*.gif
-*.svg
-*.webp
-
-## Custom Temporary Logs
+# ─── Logs & Runtime Artifacts ───────────────────────────────
+*.log
 execution_logs.txt
 gateway_logs.txt
+logs/
 
-## Test/demo artifacts
+# ─── IDEs, Editors & AI Assistants ──────────────────────────
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+.gemini/
+.agents/
+.agent/
+.claude/
+.cursor/
+
+# ─── Test & Demo Artifacts ──────────────────────────────────
 **/test_*.py
 **/*_test.py
 **/*_test.go
@@ -83,8 +111,11 @@ gateway_logs.txt
 **/*.spec.*
 **/*.test.*
 
-## Additional caches
-.ruff_cache/
-.hypothesis/
-**/.pytest_cache/
-**/__pycache__/
+# ─── Docker Overrides ───────────────────────────────────────
+docker-compose.override.yml
+docker-compose.local.yml
+
+# ─── Internal Media & Assets ────────────────────────────────
+frontend/public/auth-bg.png
+frontend/public/image/
+
