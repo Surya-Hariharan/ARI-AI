@@ -67,7 +67,7 @@ ARI relies on a distributed architecture to handle UI, business logic, asynchron
 Clone the repository and set up your environment variables based on the template:
 
 ```bash
-cp .env.template .env
+cp .env.example .env
 ```
 
 Open `.env` and fill in your Supabase connection strings, JWT secret, and SMTP credentials (e.g., Gmail App Password).
@@ -121,7 +121,7 @@ ARI/
 ├── shared/               # Shared protobufs / schemas
 ├── docs/                 # Supporting documentation
 ├── docker-compose.yml    # Main orchestration file
-└── .env.template         # Environment variable template
+└── .env.example          # Environment variable template
 ```
 
 ---
