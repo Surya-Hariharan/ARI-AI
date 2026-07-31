@@ -1,6 +1,6 @@
 # ============================================================
-# ARI System — Git Ignore Configuration
-# Protects internal files, credentials, logs, builds & caches
+# ARI System — Comprehensive Git Ignore Configuration
+# Protects internal files, design assets, backend models & secrets
 # ============================================================
 
 # ─── Environment & Secrets ──────────────────────────────────
@@ -18,7 +18,7 @@ service-account*.json
 id_rsa
 id_ed25519
 
-# ─── Supabase & Database ─────────────────────────────────────
+# ─── Supabase & Internal Databases ───────────────────────────
 .supabase/
 supabase/.temp/
 supabase/.branches/
@@ -26,6 +26,38 @@ supabase/.env
 *.db
 *.sqlite
 *.sqlite3
+voiceprints.db
+**/voiceprints.db
+
+# ─── Backend Models & Heavy ML Checkpoints ─────────────────
+model_cache/
+**/model_cache/
+*.ckpt
+*.pt
+*.pth
+*.onnx
+*.bin
+*.safetensors
+*.engine
+*.h5
+
+# ─── Design & Raw Mockup Files ──────────────────────────────
+*.fig
+*.sketch
+*.psd
+*.ai
+*.xd
+*.drawio
+*.canvas
+*.excalidraw
+design/
+designs/
+mockups/
+**/figma/
+**/designs/
+**/mockups/
+frontend/public/auth-bg.png
+frontend/public/image/
 
 # ─── Node & Dependencies ────────────────────────────────────
 node_modules/
@@ -63,8 +95,6 @@ ENV/
 .mypy_cache/
 .ruff_cache/
 .hypothesis/
-model_cache/
-**/model_cache/
 
 # ─── Go Binaries & Temp Files ───────────────────────────────
 *.exe
@@ -83,6 +113,7 @@ main
 *.log
 execution_logs.txt
 gateway_logs.txt
+agent_logs.txt
 logs/
 
 # ─── IDEs, Editors & AI Assistants ──────────────────────────
@@ -101,6 +132,7 @@ Thumbs.db
 .agent/
 .claude/
 .cursor/
+.windsurf/
 
 # ─── Test & Demo Artifacts ──────────────────────────────────
 **/test_*.py
@@ -113,7 +145,3 @@ Thumbs.db
 # ─── Docker Overrides ───────────────────────────────────────
 docker-compose.override.yml
 docker-compose.local.yml
-
-# ─── Internal Media & Assets ────────────────────────────────
-frontend/public/auth-bg.png
-frontend/public/image/
