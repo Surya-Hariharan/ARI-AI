@@ -1,133 +1,155 @@
-# ARI System
+# ARI — Autonomous Reasoning Interface & Voice Assistant
 
 <div align="center">
-  <h3>An Advanced AI Control Interface & Automation Platform</h3>
-  <p>Premium UI • Multi-Service Architecture • OTP Auth • Intelligent Agents</p>
+  <h3>Siri-Like Instant Voice Activation • Multi-Service Micro-Architecture • Fine-Tuning Control Suite</h3>
+  <p>Real-Time Wakeword Engine • Low-Latency Voice Pipeline • Custom Voice Enrollment • Modern WebGL Dashboard</p>
 </div>
 
 ---
 
 ## 🌟 Overview
 
-**ARI (Autonomous Reasoning Interface)** is a modern, production-ready platform designed for AI orchestration and intelligent task execution. It features a luxury Apple-inspired frontend and a robust, highly scalable multi-service backend.
+**ARI (Autonomous Reasoning Interface)** is a high-performance, open-source AI voice assistant and agentic orchestration platform. Designed for Siri-like instant hands-free activation, ARI listens continuously for custom trigger words (*"Hey Ari"*), verifies the speaker's voiceprint in real-time, transcribes audio via local Whisper ASR, and executes multi-step LLM reasoning plans.
 
-With ARI, users can interact with intelligent agents, manage their workflows, monitor pipelines, and securely authenticate via an advanced OTP-based system.
-
----
-
-## 🏗️ Architecture & Tech Stack
-
-ARI relies on a distributed architecture to handle UI, business logic, asynchronous task execution, and AI capabilities.
-
-### Frontend
-- **Framework**: React 18 + TypeScript + Vite
-- **Styling**: Vanilla CSS with modern Glassmorphism & Custom Tailwind
-- **Features**: Time-aware greetings, luxury dark theme, seamless transitions, responsive layouts.
-
-### Backend Services
-- **API Gateway (Go / Fiber)**: Handles authentication, JWT session management, JWT validation, and routes requests to corresponding services.
-- **Execution Service (Go)**: Manages and processes backend tasks asynchronously.
-- **AI Agent (Python / FastAPI)**: The cognitive core, managing AI orchestration, LLM interactions, and reasoning.
-
-### Infrastructure & Databases
-- **Database**: Supabase (PostgreSQL) — robust schema with `uuid-ossp` and performance indexing.
-- **Cache / Message Broker**: Redis — powers real-time communication between the Gateway, Execution, and Agent services.
-- **Deployment**: Fully containerized using `docker-compose`.
+The system features an Apple-inspired Web UI dashboard for **logging**, **real-time session monitoring**, **voice profile enrollment**, and **fine-tuning** assistant sensitivity thresholds.
 
 ---
 
-## ✨ Key Features
+## 🏗️ Core Architecture & Microservices
 
-- **Luxury Authentication Flow**: 
-  - OTP-based email verification using secure SMTP templates.
-  - Graceful "Forgot Password" flow with auto-generated strong passwords.
-  - JWT token-based auto-sign-in with localStorage caching.
-  - Time-aware, Apple-inspired glassmorphic UI (`blur(40px)`).
+```text
+[ Hands-Free Mic / Web Client ]
+               │
+               ▼ (Hands-free Wakeword Detection: "Hey Ari")
+┌────────────────────────────────────────────────────────┐
+│  API Gateway (Go Fiber) — Port 8080                    │
+│  • Real-time Audio Stream Ingestion & WebSockets      │
+│  • JWT Auth & Device Session Management                │
+└──────────────┬─────────────────────────┬───────────────┘
+               │                         │
+               ▼ (Redis Pub/Sub)         ▼ (HTTP API)
+┌──────────────────────────────┐  ┌──────────────────────────────┐
+│  Voice Agent Service (Python) │  │  Execution Worker (Go)       │
+│  • DSP Noise Suppression     │  │  • Asynchronous Task Runner  │
+│  • Speaker Verification (SIV)│  │  • System & API Integrations │
+│  • Whisper ASR & Intent LLM  │  │  • Device Action Execution   │
+│  • Multi-step Reasoning Plan │  │                              │
+│  • Neural TTS Synthesis      │  │                              │
+└──────────────────────────────┘  └──────────────────────────────┘
+```
 
-- **Multi-Service Micro-Architecture**: 
-  - Seamless inter-process communication backed by Redis.
-  - Separation of concerns between API routing, Heavy execution, and AI intelligence.
+---
 
-- **Developer Friendly**: 
-  - Centralized `.env` configurations.
-  - Docker Compose orchestrated deployment requiring a minimal setup process.
+## 📁 Repository Directory Structure
+
+```text
+ARI/
+├── backend/
+│   ├── agent/                      # Python FastAPI Cognitive Reasoning Engine
+│   │   ├── wake_engine.py          # Hands-free Wakeword Detector ("Hey Ari")
+│   │   ├── wake_engine_enhanced.py # High-precision Production Wakeword Engine
+│   │   ├── dsp_engine.py           # Digital Signal Processing (Noise & Echo Cancellation)
+│   │   ├── siv_service.py          # Speaker Identification & Voiceprint Verification
+│   │   ├── asr_engine.py           # Automatic Speech Recognition (Whisper STT)
+│   │   ├── intent_engine.py        # Intent Router & NLU Classifier
+│   │   ├── planner_engine.py       # Multi-step LLM Task Planning & Reasoning
+│   │   ├── rag_engine.py           # Retrieval-Augmented Memory Engine
+│   │   ├── tts_engine.py           # Zero-latency Neural Text-to-Speech
+│   │   ├── mood_engine.py          # Voice Tone, Formality & Persona Controller
+│   │   └── main.py                 # FastAPI Application Server Entrypoint
+│   ├── execution/                  # Go Asynchronous Task Runner
+│   └── gateway/                    # Go Fiber API Gateway (WebSockets, Auth, OTP)
+├── frontend/                       # React 18 + Vite + TypeScript Web Dashboard
+│   ├── src/
+│   │   ├── api/                    # Typed API Client & Gateway Wrappers
+│   │   ├── app/
+│   │   │   ├── components/         # WebGL SideRays, Navigation & Glass UI Components
+│   │   │   ├── context/            # Auth & Voice Session React Context
+│   │   │   ├── pages/
+│   │   │   │   ├── AuthPage.tsx    # Luxury Authentication & Timezone Greetings
+│   │   │   │   ├── VoiceSetup.tsx  # Voice Assistant Enrollment & Fine-Tuning Suite
+│   │   │   │   ├── ControlDashboard.tsx # Live Voice Telemetry & Session Monitoring
+│   │   │   │   ├── UserSecurity.tsx     # Device Permissions & Key Management
+│   │   │   │   └── SystemOverview.tsx   # Latency & Microservice Health Metrics
+│   │   │   └── App.tsx             # Application Router & Main Dashboard Layout
+├── supabase/                       # Supabase / PostgreSQL Database Pipeline
+│   ├── migrations/                 # Modular, non-circular migration scripts
+│   │   ├── 001_extensions.sql      # PostgreSQL extensions (uuid-ossp, pgcrypto)
+│   │   ├── 002_schema.sql          # Core tables (users, devices, voice_sessions, etc.)
+│   │   ├── 003_functions.sql       # PL/pgSQL stored procedures
+│   │   ├── 004_triggers.sql        # Automated timestamp update triggers
+│   │   ├── 005_views.sql           # Active sessions & voice telemetry views
+│   │   ├── 006_indexes.sql         # Performance indexes
+│   │   └── 007_rls_policies.sql    # Tenant isolation Row Level Security
+│   ├── scripts/                    # Migration execution runner (`run_migrations.js`)
+│   └── seed/                       # Initial development seed data (`seed.sql`)
+├── docs/                           # Architecture, API & Engineering Documentation
+│   ├── README.md                   # Master Documentation Index
+│   ├── DEVELOPMENT.md              # Local Development Setup & Migrations Guide
+│   ├── guidelines.md               # Repository Hygiene & Engineering Standards
+│   └── architecture/               # Architecture overviews & Free Tier Stack specs
+├── shared/                         # Shared JSON schemas & cross-service types
+├── docker-compose.yml              # Containerized multi-service deployment spec
+└── .env.example                    # Environment variable configuration template
+```
+
+---
+
+## ✨ Key Capabilities
+
+1. **Siri-Like Instant Wakeword Activation**:
+   - Continuous audio streaming with background noise suppression (DSP).
+   - Instant activation on wake phrase detection (*"Hey Ari"*) with confidence gating.
+   - Real-time speaker verification (SIV) to prevent unauthorized triggers.
+
+2. **Fine-Tuning & Voice Profile Calibration**:
+   - Custom voice enrollment interface ([VoiceSetup.tsx](file:///c:/Users/surya/OneDrive/Desktop/ARI/frontend/src/app/pages/VoiceSetup.tsx)).
+   - Adjustable wake threshold (`wake_threshold`) and speaker verification threshold (`speaker_threshold`).
+   - Fine-tune speech synthesis rate, voice formalness (`casual`, `neutral`, `formal`), and custom hotword lists.
+
+3. **Live Telemetry & Execution Logs**:
+   - Real-time turn-by-turn ASR confidence and intent breakdown.
+   - End-to-end latency tracking across ASR, NLU, Planning, and TTS pipelines.
+   - Low-confidence trigger capture and model retraining queue.
 
 ---
 
 ## 🚀 Getting Started
 
-### Prerequisites
-- Docker and Docker Compose
-- Node.js (v18+) and npm
-- Go (1.20+)
-- A Supabase Project (PostgreSQL)
-
 ### 1. Environment Configuration
 
-Clone the repository and set up your environment variables based on the template:
+Clone the repository and copy the environment template:
 
 ```bash
 cp .env.example .env
 ```
 
-Open `.env` and fill in your Supabase connection strings, JWT secret, and SMTP credentials (e.g., Gmail App Password).
+Fill in your Supabase connection strings, JWT secrets, and API credentials in `.env`.
 
-### 2. Database Setup
+### 2. Database Migrations
 
-Ensure your Supabase project is running, then apply the database migrations in order:
+Apply the database migrations to your PostgreSQL / Supabase database:
 
 ```bash
 cd supabase/scripts
 npm install
 node run_migrations.js
 ```
-*(This sets up the `users`, `otp_codes`, `user_sessions`, and other necessary tables).*
 
-### 3. Running via Docker (Backend + Frontend)
+### 3. Docker Deployment
 
-Start the entire stack (Gateway, Agent, Execution, Redis, Frontend) with a single command:
+Launch all microservices (Gateway, Agent, Execution, Redis, Frontend) in Docker:
 
 ```bash
 docker-compose up --build
 ```
 
-- **Frontend**: http://localhost:5173
-- **API Gateway**: http://localhost:8080
-- **Python Agent**: http://localhost:8000
-
-### 4. Running Frontend Locally (Development Mode)
-
-If you prefer hot-reloading for UI changes:
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
----
-
-## 📁 Project Structure
-
-```text
-ARI/
-├── backend/
-│   ├── agent/            # FastAPI Python service for AI reasoning & orchestration
-│   ├── execution/        # Go service for heavy task execution
-│   └── gateway/          # Go Fiber API gateway (Auth, OTP, JWT, routing)
-├── frontend/             # React 18 + Vite + TypeScript UI application
-├── supabase/             # Database migrations, seed data & runner scripts
-│   ├── migrations/       # SQL schema migration files
-│   ├── scripts/          # Migration execution scripts & utilities
-│   └── seed/             # Development seed data
-├── shared/               # Shared JSON schemas & interfaces
-├── docs/                 # System documentation & developer guides
-├── docker-compose.yml    # Docker Compose multi-service orchestration
-└── .env.example          # Environment variable template
-```
+- **Web Dashboard**: `http://localhost:5173`
+- **API Gateway**: `http://localhost:8080`
+- **Voice Agent Service**: `http://localhost:8000`
 
 ---
 
 ## 📄 License
 
-This project is licensed under the Apache License, Version 2.0. See the `LICENSE` file for details.
+Licensed under the Apache License, Version 2.0. See [LICENSE](file:///c:/Users/surya/OneDrive/Desktop/ARI/LICENSE) for details.
