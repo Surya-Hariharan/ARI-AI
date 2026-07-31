@@ -6,11 +6,11 @@ services:
 
   gateway:
     build:
-      context: ./backend/gateway_go
+      context: ./backend/gateway
     ports:
       - "8080:8080"
     volumes:
-      - ./backend/gateway_go:/app
+      - ./backend/gateway:/app
     command: ["air"]
     environment:
       - REDIS_ADDR=redis:6379
@@ -22,11 +22,11 @@ services:
 
   agent:
     build:
-      context: ./backend/agent_python
+      context: ./backend/agent
     ports:
       - "8000:8000"
     volumes:
-      - ./backend/agent_python:/app
+      - ./backend/agent:/app
     environment:
       - REDIS_ADDR=redis:6379
       - ARI_SPACY_AUTO_DOWNLOAD=false
@@ -39,9 +39,9 @@ services:
 
   execution:
     build:
-      context: ./backend/execution_go
+      context: ./backend/execution
     volumes:
-      - ./backend/execution_go:/app
+      - ./backend/execution:/app
     command: ["air"]
     environment:
       - REDIS_ADDR=redis:6379

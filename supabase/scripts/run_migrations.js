@@ -9,7 +9,7 @@ function sha256(value) {
 }
 
 function getMigrationFiles() {
-  const migrationDir = __dirname;
+  const migrationDir = path.join(__dirname, '../migrations');
   return fs
     .readdirSync(migrationDir)
     .filter((name) => /^\d+.*\.sql$/i.test(name))
@@ -48,7 +48,7 @@ async function runMigrations() {
     }
 
     for (const file of files) {
-      const filePath = path.join(__dirname, file);
+      const filePath = path.join(__dirname, '../migrations', file);
       const sql = fs.readFileSync(filePath, 'utf8');
       const checksum = sha256(sql);
 

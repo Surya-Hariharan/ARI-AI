@@ -77,7 +77,7 @@ Open `.env` and fill in your Supabase connection strings, JWT secret, and SMTP c
 Ensure your Supabase project is running, then apply the database migrations in order:
 
 ```bash
-cd supabase/migrations
+cd supabase/scripts
 npm install
 node run_migrations.js
 ```
@@ -112,15 +112,17 @@ npm run dev
 ```text
 ARI/
 ├── backend/
-│   ├── agent_python/     # FastAPI Python service for AI reasoning
-│   ├── execution_go/     # Go service for heavy task execution 
-│   └── gateway_go/       # Go Fiber API gateway (Auth, routing)
-├── frontend/             # React/Vite UI application
-├── supabase/             # Database migrations & schemas
-├── infra/                # Infrastructure configurations
-├── shared/               # Shared protobufs / schemas
-├── docs/                 # Supporting documentation
-├── docker-compose.yml    # Main orchestration file
+│   ├── agent/            # FastAPI Python service for AI reasoning & orchestration
+│   ├── execution/        # Go service for heavy task execution
+│   └── gateway/          # Go Fiber API gateway (Auth, OTP, JWT, routing)
+├── frontend/             # React 18 + Vite + TypeScript UI application
+├── supabase/             # Database migrations, seed data & runner scripts
+│   ├── migrations/       # SQL schema migration files
+│   ├── scripts/          # Migration execution scripts & utilities
+│   └── seed/             # Development seed data
+├── shared/               # Shared JSON schemas & interfaces
+├── docs/                 # System documentation & developer guides
+├── docker-compose.yml    # Docker Compose multi-service orchestration
 └── .env.example          # Environment variable template
 ```
 
@@ -128,4 +130,4 @@ ARI/
 
 ## 📄 License
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+This project is licensed under the Apache License, Version 2.0. See the `LICENSE` file for details.

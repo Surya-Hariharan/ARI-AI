@@ -1,6 +1,6 @@
 # ARI Developer Guide
 
-Welcome to the ARI backend! This guide will help you rapidly develop and iterate on the code. 
+Welcome to the ARI platform! This guide will help you rapidly develop and iterate on the system.
 
 ## 🚀 Hot-Reloading Architecture
 
@@ -15,11 +15,11 @@ docker compose up --build
 
 ### How live editing works in each service:
 
-1. **Gateway (`backend/gateway_go`) & Execution Worker (`backend/execution_go`)**
+1. **Gateway (`backend/gateway`) & Execution Worker (`backend/execution`)**
    - **Tool**: `air` (Go live-reloading)
    - **How it works**: The Docker containers mount your local directories as Volumes to `/app` inside the container. Whenever you save a `.go` file locally, `air` immediately intercepts the save, forcefully recompiles the new binary, and re-launches the service automatically.
    
-2. **Agent Service (`backend/agent_python`)**
+2. **Agent Service (`backend/agent`)**
    - **Tool**: `uvicorn --reload`
    - **How it works**: Same volume mapping mechanism. When you edit any `.py` file, FastAPI automatically reboots its worker threads, updating your endpoints seamlessly!
 
@@ -27,11 +27,17 @@ docker compose up --build
    - **Tool**: `vite` (HMR - Hot Module Replacement)
    - **How it works**: `vite` strictly watches the mounted `./frontend` directory and pushes updates directly into your browser window without wiping your active page state.
 
-## 🗄️ Database Changes
+## 🗄️ Database Setup & Changes
 If you need to change your database layer schemas or credentials:
-- Open the `.env` file at the root.
+- Open `.env` at the root.
 - Change `DATABASE_URL` (for postgres connection pools) or `SUPABASE_KEY` (for HTTP fetching).
-- When changing `.env` variables, you **do** need to manually restart the docker compose stack to load the new config into the isolated container environments:
+- To apply database migrations:
+  ```bash
+  cd supabase/scripts
+  npm install
+  node run_migrations.js
+  ```
+- When changing `.env` variables, restart the Docker Compose stack to load new configs:
   ```bash
   docker compose down
   docker compose up --build
@@ -52,12 +58,12 @@ Recommended local cleanup command from repo root:
 
 ```bash
 # PowerShell
-Remove-Item -Recurse -Force backend/agent_python/__pycache__, backend/gateway_go/tmp, backend/execution_go/tmp -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force backend/agent/__pycache__, backend/gateway/tmp, backend/execution/tmp -ErrorAction SilentlyContinue
 ```
 
 ## Runtime Security And Compatibility Flags
 
-The runtime now enforces stricter defaults outside development.
+The runtime enforces strict defaults outside development.
 
 1. `ARI_ENV`: environment name (`development`, `dev`, `local`, `test` are treated as non-production).
 2. `ARI_REQUIRE_ENCRYPTION_KEY`: optional override (`true`/`false`) for key policy.
@@ -66,19 +72,3 @@ The runtime now enforces stricter defaults outside development.
 5. `ARI_ENABLE_LEGACY_PLAN_ENDPOINT`: defaults to `false`; when disabled, `/plan` returns `410` and clients should use `/voice/runtime/process`.
 
 In development only, a deterministic fallback voiceprint key is used when no key is configured.
-
-### Startup Health Check
-
-On startup, the agent now performs a strict security configuration check.
-
-1. In non-development mode (or when `ARI_REQUIRE_ENCRYPTION_KEY=true`), startup fails if `ARI_MEMORY_ENCRYPTION_KEY` is missing.
-2. Voiceprint encryption must resolve through `ARI_VOICEPRINT_ENCRYPTION_KEY` or `ARI_MEMORY_ENCRYPTION_KEY`.
-3. Failures are surfaced as startup exceptions before serving requests.
-
-### Runtime Contract Utility
-
-Use this utility to compare compatibility between `/voice/process` and `/voice/runtime/process`.
-
-```bash
-python backend/agent_python/runtime_contract_check.py --base-url http://localhost:8000
-```

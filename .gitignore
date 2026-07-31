@@ -7,7 +7,6 @@
 .env
 .env.*
 !.env.example
-!.env.template
 *.pem
 *.key
 *.crt
@@ -118,4 +117,3 @@ docker-compose.local.yml
 # ─── Internal Media & Assets ────────────────────────────────
 frontend/public/auth-bg.png
 frontend/public/image/
-
