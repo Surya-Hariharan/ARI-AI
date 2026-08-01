@@ -1,8 +1,10 @@
 services:
   redis:
     image: redis:7
+    # Published for local inspection (redis-cli) only. docker-compose.prod.yml keeps
+    # it internal.
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
 
   gateway:
     build:
@@ -30,8 +32,13 @@ services:
     build:
       context: ./backend
       dockerfile: agent/Dockerfile
-    ports:
-      - "8000:8000"
+    # No `ports:` mapping. The agent exposes voiceprint enrollment/deletion,
+    # arbitrary tool execution via /execute, and RAG ingestion; publishing it to the
+    # host makes all of that reachable from outside the compose network. The gateway
+    # and execution worker reach it as http://agent:8000 over the internal network.
+    # To poke at it during development: docker compose exec agent sh
+    expose:
+      - "8000"
     volumes:
       - ./backend/agent:/app
     environment:
@@ -53,8 +60,9 @@ services:
   execution:
     build:
       context: ./backend/execution
-    ports:
-      - "9090:9090"
+    # Health port stays internal; nothing outside the cluster needs to probe a worker.
+    expose:
+      - "9090"
     volumes:
       - ./backend/execution:/app
     command: ["air"]

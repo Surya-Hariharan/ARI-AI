@@ -1,0 +1,156 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Cancel superseded runs on the same ref so pushes to an open PR don't queue behind
+# each other.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Go services (gateway, execution)
+  #
+  # There is no test suite yet (tracked as Phase 1 / T1.4 in
+  # docs/architecture/backend/roadmap/03-phases-1-7.md) so this stage is
+  # build + vet + gofmt, which is exactly what was run by hand before every
+  # commit on the Phase 0 branch. `go test ./...` is included and will start
+  # doing real work the moment the first _test.go file lands — no workflow
+  # change required.
+  # ---------------------------------------------------------------------------
+  go:
+    name: go / ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [gateway, execution]
+    defaults:
+      run:
+        working-directory: backend/${{ matrix.service }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache-dependency-path: backend/${{ matrix.service }}/go.sum
+
+      - name: gofmt
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "The following files are not gofmt-formatted:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      - name: go vet
+        run: go vet ./...
+
+      - name: go build
+        run: go build ./...
+
+      - name: go test
+        run: go test ./...
+
+  # ---------------------------------------------------------------------------
+  # Python agent
+  #
+  # backend/requirements.txt has no version pins (torch, transformers,
+  # speechbrain, faster-whisper, ...); a full `pip install` in CI is slow and,
+  # without pins, not reproducible between runs. Until T1.2 (pin dependencies)
+  # lands, this stage verifies the service imports cleanly and its syntax is
+  # valid, which is the same check used to validate the Phase 0 changes.
+  # ---------------------------------------------------------------------------
+  agent-syntax:
+    name: agent / syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Compile check (py_compile)
+        run: |
+          python -m compileall -q backend/agent
+
+  # ---------------------------------------------------------------------------
+  # Frontend
+  # ---------------------------------------------------------------------------
+  frontend:
+    name: frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci
+
+      - run: npm run build
+
+  # ---------------------------------------------------------------------------
+  # Docker Compose validation
+  #
+  # Confirms both compose files parse and required env vars for the production
+  # file are actually declared (config -q fails on an undeclared required var).
+  # ---------------------------------------------------------------------------
+  compose:
+    name: compose config
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate docker-compose.yml (dev)
+        run: docker compose -f docker-compose.yml config -q
+
+      - name: Validate docker-compose.prod.yml
+        run: |
+          docker compose -f docker-compose.prod.yml config -q
+        env:
+          REDIS_PASSWORD: placeholder
+          ARI_SERVICE_TOKEN: placeholder
+          ALLOWED_ORIGINS: https://app.example.com
+          APP_BASE_URL: https://app.example.com
+          JWT_SECRET: placeholder-at-least-32-characters-long
+          DATABASE_URL: postgresql://user:pass@host:5432/db
+          VOICE_EMBEDDING_KEY: placeholder
+          ARI_MEMORY_ENCRYPTION_KEY: placeholder
+
+  # ---------------------------------------------------------------------------
+  # Secret scanning — new commits only, not full history.
+  #
+  # Full-history scanning is deliberately NOT enabled here. git history already
+  # contains real-looking credentials committed before 2026-08-01 (a Supabase
+  # project URL/publishable key and a JWT_SECRET value in an earlier revision
+  # of .env.example — see S-23 in docs/architecture/backend/07-readiness-audit.md
+  # and T0.8 in docs/architecture/backend/roadmap/02-phase-0-p0-security.md).
+  # Those values remain live in every existing clone regardless of what this
+  # scanner does, and the fix is rotating the credentials plus a deliberate,
+  # separately-authorized history rewrite — not a CI setting. Scoping this job
+  # to the current push/PR diff (the gitleaks-action default without
+  # fetch-depth: 0) gates *new* leaks without silently masking the old one or
+  # taking a destructive history-rewrite action unprompted.
+  # ---------------------------------------------------------------------------
+  gitleaks:
+    name: gitleaks (new commits)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
