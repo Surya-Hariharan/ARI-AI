@@ -3,6 +3,13 @@
 # Protects internal files, design assets, backend models & secrets
 # ============================================================
 
+# ─── Internal Architecture & Security Docs ──────────────────
+# Security audit findings (exact file:line vulnerability references),
+# remediation roadmap and phase tracking. Not product source — internal
+# planning material that should never be public regardless of whether the
+# findings it describes are already fixed.
+/docs/
+
 # ─── Environment & Secrets ──────────────────────────────────
 .env
 .env.*
