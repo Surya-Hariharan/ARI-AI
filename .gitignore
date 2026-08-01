@@ -105,7 +105,13 @@ tmp/
 **/tmp/
 temp/
 **/temp/
-main
+# `go build` names its output after the package directory, so the gateway and
+# execution worker both produce a binary called `main`. These are anchored to
+# those two directories on purpose: a bare `main` pattern matches *any* path
+# segment with that name, which silently excluded every `src/main/` source
+# directory in android/.
+/backend/gateway/main
+/backend/execution/main
 *.test
 *.out
 
