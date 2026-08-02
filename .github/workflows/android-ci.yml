@@ -34,11 +34,18 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      # --no-configuration-cache: Spotless 6.x is not configuration-cache compatible and
+      # fails with "Spotless JVM-local cache is stale" whenever the restored Gradle cache
+      # was written by a different JVM (https://github.com/diffplug/spotless/issues/987).
+      # Remove once Spotless is on 7.x.
       - name: Spotless
-        run: ./gradlew spotlessCheck --no-daemon
+        run: ./gradlew spotlessCheck --no-daemon --no-configuration-cache
 
       - name: Detekt
         run: ./gradlew detekt --no-daemon
+
+      - name: Android Lint
+        run: ./gradlew lint --no-daemon
 
       - name: Upload SARIF
         if: always()
@@ -60,10 +67,21 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      # devDebug only. Running every flavour's tests triples CI time to re-run
-      # identical code — the flavours differ solely in a base URL.
+      # `test` is the only task name that covers all three module shapes in this build:
+      #   * JVM modules (:core:shared)            -> `test`
+      #   * Android library modules (:core:oem …) -> `testDebugUnitTest` / `testReleaseUnitTest`
+      #   * `:app`, which has dev/prod flavours   -> `testDevDebugUnitTest` etc.
+      # The previous `testDevDebugUnitTest` matched only `:app` — which has no test sources —
+      # so this job passed while executing zero tests. Naming variant tasks explicitly is how
+      # that regression happens, so prefer the aggregate and let the guard below enforce it.
       - name: Unit tests
-        run: ./gradlew testDevDebugUnitTest --no-daemon -Pari.warningsAsErrors=true
+        run: ./gradlew test --no-daemon -Pari.warningsAsErrors=true
+
+      - name: Verify tests actually ran
+        run: |
+          count=$(find . -path '*/build/test-results/*' -name 'TEST-*.xml' | wc -l)
+          echo "Found $count test result files"
+          test "$count" -gt 0 || { echo "::error::No tests executed"; exit 1; }
 
       - name: Upload test reports
         if: failure()
