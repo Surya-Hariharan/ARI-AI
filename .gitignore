@@ -136,6 +136,7 @@ temp/
 # ─── Android/Gradle build caches ─────────────────────────────
 android/build-logic/.kotlin/
 **/.kotlin/
+android/**/bin/
 
 # ─── Logs & Runtime Artifacts ───────────────────────────────
 *.log
