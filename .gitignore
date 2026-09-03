@@ -20,6 +20,7 @@
 .env
 .env.*
 !.env.example
+!.env.template
 *.pem
 *.key
 *.crt
@@ -69,19 +70,10 @@ mockups/
 **/figma/
 **/designs/
 **/mockups/
-frontend/public/auth-bg.png
-# Raw source design assets (working files, not shipped) — the app-facing
-# copies live in android/.../res and frontend/public and ARE tracked.
+# Raw source design assets (working files, not shipped) — e.g. logo.png, the
+# master brand mark. The app-facing copy lives under /frontend/, which is
+# already excluded wholesale below.
 /assets/branding/
-
-# ─── Brand/confidential assets (kept out of the public repo) ──
-frontend/public/logo.png
-frontend/public/favicon-16x16.png
-frontend/public/favicon-32x32.png
-frontend/public/pwa-192x192.png
-frontend/public/pwa-512x512.png
-frontend/public/image/
-android/app/src/main/res/drawable-nodpi/
 
 # ─── Node & Dependencies ────────────────────────────────────
 node_modules/
