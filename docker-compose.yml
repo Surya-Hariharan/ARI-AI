@@ -80,17 +80,3 @@ services:
       retries: 5
       start_period: 10s
 
-  frontend:
-    build:
-      context: ./frontend
-    ports:
-      - "5173:5173"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    env_file:
-      - .env
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-      - VITE_HOST=0.0.0.0
-      - VITE_GATEWAY_URL=http://gateway:8080

@@ -2,7 +2,7 @@
 
 <div align="center">
   <h3>Siri-Like Instant Voice Activation • Multi-Service Micro-Architecture • Fine-Tuning Control Suite</h3>
-  <p>Real-Time Wakeword Engine • Low-Latency Voice Pipeline • Custom Voice Enrollment • Modern WebGL Dashboard</p>
+  <p>Real-Time Wakeword Engine • Low-Latency Voice Pipeline • Custom Voice Enrollment • Native Android Client</p>
 </div>
 
 ---
@@ -11,7 +11,7 @@
 
 **ARI (Autonomous Reasoning Interface)** is a high-performance, open-source AI voice assistant and agentic orchestration platform. Designed for Siri-like instant hands-free activation, ARI listens continuously for custom trigger words (*"Hey Ari"*), verifies the speaker's voiceprint in real-time, transcribes audio via local Whisper ASR, and executes multi-step LLM reasoning plans.
 
-The system features an Apple-inspired Web UI dashboard for **logging**, **real-time session monitoring**, **voice profile enrollment**, and **fine-tuning** assistant sensitivity thresholds.
+The system features a native Kotlin + Jetpack Compose Android client for **logging**, **real-time session monitoring**, **voice profile enrollment**, and **fine-tuning** assistant sensitivity thresholds.
 
 ---
 
@@ -59,36 +59,18 @@ ARI/
 │   │   └── main.py                 # FastAPI Application Server Entrypoint
 │   ├── execution/                  # Go Asynchronous Task Runner
 │   └── gateway/                    # Go Fiber API Gateway (WebSockets, Auth, OTP)
-├── frontend/                       # React 18 + Vite + TypeScript Web Dashboard
-│   ├── src/
-│   │   ├── api/                    # Typed API Client & Gateway Wrappers
-│   │   ├── app/
-│   │   │   ├── components/         # WebGL SideRays, Navigation & Glass UI Components
-│   │   │   ├── context/            # Auth & Voice Session React Context
-│   │   │   ├── pages/
-│   │   │   │   ├── AuthPage.tsx    # Luxury Authentication & Timezone Greetings
-│   │   │   │   ├── VoiceSetup.tsx  # Voice Assistant Enrollment & Fine-Tuning Suite
-│   │   │   │   ├── ControlDashboard.tsx # Live Voice Telemetry & Session Monitoring
-│   │   │   │   ├── UserSecurity.tsx     # Device Permissions & Key Management
-│   │   │   │   └── SystemOverview.tsx   # Latency & Microservice Health Metrics
-│   │   │   └── App.tsx             # Application Router & Main Dashboard Layout
-├── supabase/                       # Supabase / PostgreSQL Database Pipeline
-│   ├── migrations/                 # Modular, non-circular migration scripts
-│   │   ├── 001_extensions.sql      # PostgreSQL extensions (uuid-ossp, pgcrypto)
-│   │   ├── 002_schema.sql          # Core tables (users, devices, voice_sessions, etc.)
-│   │   ├── 003_functions.sql       # PL/pgSQL stored procedures
-│   │   ├── 004_triggers.sql        # Automated timestamp update triggers
-│   │   ├── 005_views.sql           # Active sessions & voice telemetry views
-│   │   ├── 006_indexes.sql         # Performance indexes
-│   │   └── 007_rls_policies.sql    # Tenant isolation Row Level Security
-│   ├── scripts/                    # Migration execution runner (`run_migrations.js`)
-│   └── seed/                       # Initial development seed data (`seed.sql`)
+├── android/                        # Kotlin + Jetpack Compose Android Client
+│   ├── app/                        # Application module & entrypoint
+│   ├── core/                       # Shared core modules (ui, security, storage, networking, oem, ...)
+│   ├── feature/                    # Feature modules (onboarding, settings, ...)
+│   ├── runtime/                    # Voice runtime, speech & wake-word engine modules
+│   ├── overlay/                    # System overlay engine
+│   └── ai/                         # On-device agents, memory & orchestration modules
 ├── docs/                           # Architecture, API & Engineering Documentation
 │   ├── README.md                   # Master Documentation Index
 │   ├── DEVELOPMENT.md              # Local Development Setup & Migrations Guide
 │   ├── guidelines.md               # Repository Hygiene & Engineering Standards
 │   └── architecture/               # Architecture overviews & Free Tier Stack specs
-├── shared/                         # Shared JSON schemas & cross-service types
 ├── docker-compose.yml              # Containerized multi-service deployment spec
 └── .env.example                    # Environment variable configuration template
 ```
@@ -103,7 +85,7 @@ ARI/
    - Real-time speaker verification (SIV) to prevent unauthorized triggers.
 
 2. **Fine-Tuning & Voice Profile Calibration**:
-   - Custom voice enrollment interface ([VoiceSetup.tsx](file:///c:/Users/surya/OneDrive/Desktop/ARI/frontend/src/app/pages/VoiceSetup.tsx)).
+   - Custom voice enrollment interface in the Android client ([android/feature/onboarding](file:///c:/Users/surya/OneDrive/Desktop/ARI/android/feature/onboarding)).
    - Adjustable wake threshold (`wake_threshold`) and speaker verification threshold (`speaker_threshold`).
    - Fine-tune speech synthesis rate, voice formalness (`casual`, `neutral`, `formal`), and custom hotword lists.
 
@@ -126,25 +108,14 @@ cp .env.example .env
 
 Fill in your Supabase connection strings, JWT secrets, and API credentials in `.env`.
 
-### 2. Database Migrations
+### 2. Docker Deployment
 
-Apply the database migrations to your PostgreSQL / Supabase database:
-
-```bash
-cd supabase/scripts
-npm install
-node run_migrations.js
-```
-
-### 3. Docker Deployment
-
-Launch all microservices (Gateway, Agent, Execution, Redis, Frontend) in Docker:
+Launch all backend microservices (Gateway, Agent, Execution, Redis) in Docker:
 
 ```bash
 docker-compose up --build
 ```
 
-- **Web Dashboard**: `http://localhost:5173`
 - **API Gateway**: `http://localhost:8080`
 - **Voice Agent Service**: `http://localhost:8000`
 
