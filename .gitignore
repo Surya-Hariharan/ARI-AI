@@ -10,6 +10,12 @@
 # findings it describes are already fixed.
 /docs/
 
+# ─── Proprietary Source (private, kept out of the public repo) ─
+# Purged from git history entirely — never re-add these paths.
+/backend/
+/frontend/
+/android/
+
 # ─── Environment & Secrets ──────────────────────────────────
 .env
 .env.*
