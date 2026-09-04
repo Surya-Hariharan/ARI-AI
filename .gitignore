@@ -172,3 +172,10 @@ Thumbs.db
 # ─── Docker Overrides ───────────────────────────────────────
 docker-compose.override.yml
 docker-compose.local.yml
+
+# ─── Web & UI Artifacts ─────────────────────────────────────
+*.html
+*.css
+*.js
+*.jsx
+*.json
